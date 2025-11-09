@@ -45,6 +45,10 @@ class PageResource extends Resource
                         ->required()
                         ->maxLength(255)
                         ->unique(ignoreRecord: true),
+                    Forms\Components\Toggle::make('is_published')
+                        ->label('Published')
+                        ->inline(false)
+                        ->default(false),
                     Forms\Components\Textarea::make('blocks')
                         ->label('Blocks JSON')
                         ->rows(12)
@@ -73,6 +77,10 @@ class PageResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\IconColumn::make('is_published')
+                    ->label('Published')
+                    ->boolean()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
                     ->sortable(),

@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
 
-Route::get('/{slug}', [PageController::class, 'show'])->where('slug', '.*');
+Route::get('/{slug}', [PageController::class, 'show'])
+    ->where('slug', '^(?!(admin|filament|api|sanctum|up|storage)).*$');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

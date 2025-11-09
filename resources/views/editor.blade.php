@@ -112,6 +112,7 @@
     <script>
         window.pageSlug = '{{ $slug }}';
         window.apiBaseUrl = '{{ url("/api") }}';
+        window.csrfCookieUrl = '{{ url("/sanctum/csrf-cookie") }}';
         window.csrfToken = '{{ csrf_token() }}';
     </script>
 </body>

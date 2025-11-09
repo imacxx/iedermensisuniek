@@ -2,52 +2,36 @@
 class PageEditor {
     constructor() {
         this.blocks = [];
-        this.apiToken = null;
         this.blockSchemas = {};
         this.init();
     }
 
     async init() {
-        await this.authenticate();
+        await this.prepareCsrf();
         await this.loadBlockSchemas();
         this.bindEvents();
         // Auto-load page on init
-        this.loadPage();
+        await this.loadPage();
     }
 
-    async authenticate() {
+    async prepareCsrf() {
         try {
-            const response = await fetch(`${window.apiBaseUrl}/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': window.csrfToken
-                },
-                body: JSON.stringify({
-                    email: 'admin@admin.nl',
-                    password: 'test123'
-                })
+            await fetch(window.csrfCookieUrl, {
+                method: 'GET',
+                credentials: 'same-origin',
             });
-
-            if (response.ok) {
-                const data = await response.json();
-                this.apiToken = data.token;
-                console.log('Authenticated successfully');
-            } else {
-                console.error('Authentication failed');
-            }
         } catch (error) {
-            console.error('Authentication error:', error);
+            console.error('Unable to prepare CSRF cookies:', error);
         }
     }
 
     async loadBlockSchemas() {
         try {
             const response = await fetch(`${window.apiBaseUrl}/blocks/schema`, {
+                credentials: 'same-origin',
                 headers: {
-                    'Authorization': `Bearer ${this.apiToken}`,
-                    'Accept': 'application/json'
-                }
+                    ...this.getAuthHeaders(),
+                },
             });
 
             if (response.ok) {
@@ -70,10 +54,10 @@ class PageEditor {
     async loadPage() {
         try {
             const response = await fetch(`${window.apiBaseUrl}/pages/${window.pageSlug}`, {
+                credentials: 'same-origin',
                 headers: {
-                    'Authorization': `Bearer ${this.apiToken}`,
-                    'Accept': 'application/json'
-                }
+                    ...this.getAuthHeaders(),
+                },
             });
 
             if (response.ok) {
@@ -82,7 +66,8 @@ class PageEditor {
                 this.renderBlocks();
                 this.updatePreview();
             } else {
-                console.error('Failed to load page');
+                const error = await response.json().catch(() => ({}));
+                console.error('Failed to load page', error);
             }
         } catch (error) {
             console.error('Load error:', error);
@@ -98,17 +83,17 @@ class PageEditor {
             const response = await fetch(`${window.apiBaseUrl}/pages/${window.pageSlug}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiToken}`,
-                    'Accept': 'application/json'
+                    ...this.getAuthHeaders(true),
                 },
-                body: JSON.stringify(pageData)
+                credentials: 'same-origin',
+                body: JSON.stringify(pageData),
             });
 
             if (response.ok) {
                 alert('Page saved successfully!');
             } else {
-                console.error('Failed to save page');
+                const error = await response.json().catch(() => ({}));
+                console.error('Failed to save page', error);
             }
         } catch (error) {
             console.error('Save error:', error);
@@ -282,6 +267,38 @@ class PageEditor {
         const preview = document.getElementById('preview');
         // Simple preview - in a real implementation you'd render the blocks
         preview.innerHTML = `<pre>${JSON.stringify(this.blocks, null, 2)}</pre>`;
+    }
+
+    getAuthHeaders(includeJson = false) {
+        const headers = {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': window.csrfToken,
+        };
+
+        const xsrfToken = this.getXsrfToken();
+        if (xsrfToken) {
+            headers['X-XSRF-TOKEN'] = xsrfToken;
+        }
+
+        if (includeJson) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        return headers;
+    }
+
+    getXsrfToken() {
+        const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+        if (!match) {
+            return null;
+        }
+
+        try {
+            return decodeURIComponent(match[1]);
+        } catch (error) {
+            console.error('Failed to decode XSRF token', error);
+            return match[1];
+        }
     }
 }
 

@@ -12,8 +12,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 
 // API routes for pages
-Route::get('/pages/{slug}', [PageController::class, 'show']);
-Route::put('/pages/{slug}', [PageController::class, 'update'])->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::get('/pages/{slug}', [PageController::class, 'show']);
+    Route::put('/pages/{slug}', [PageController::class, 'update']);
+});
 
 // API route for uploads
 Route::post('/uploads', [UploadController::class, 'store'])->middleware('auth:sanctum');

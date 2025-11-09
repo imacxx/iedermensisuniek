@@ -4,24 +4,27 @@ namespace App\Policies;
 
 use App\Models\Page;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class PagePolicy
 {
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Page $page): bool
+    public function view(?User $user, Page $page): bool
     {
-        return false;
+        if ($page->is_published) {
+            return true;
+        }
+
+        return $user ? $this->update($user, $page) : false;
     }
 
     /**
@@ -35,8 +38,12 @@ class PagePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Page $page): bool
+    public function update(?User $user, Page $page): bool
     {
+        if (! $user) {
+            return false;
+        }
+
         // Allow admin users (those with admin in email for now)
         return str_contains($user->email, 'admin');
     }

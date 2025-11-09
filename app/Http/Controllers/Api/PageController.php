@@ -16,6 +16,8 @@ class PageController extends Controller
     {
         $page = Page::where('slug', $slug)->firstOrFail();
 
+        $this->authorize('view', $page);
+
         return response()->json([
             'title' => $page->title,
             'slug' => $page->slug,
@@ -32,6 +34,8 @@ class PageController extends Controller
     public function update(Request $request, string $slug): JsonResponse
     {
         $page = Page::where('slug', $slug)->firstOrFail();
+
+        $this->authorize('update', $page);
 
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',

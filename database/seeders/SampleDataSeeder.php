@@ -130,28 +130,29 @@ class SampleDataSeeder extends Seeder
                         ],
                     ],
                 ],
-            ],
-            [
-                'type' => 'two_column',
-                'data' => [
-                    'left_content' => '<h3>Why Choose Us?</h3><p>We provide modern, scalable solutions built with the latest technologies. Our team of experts ensures your project is delivered on time and exceeds expectations.</p><ul><li>Expert Development Team</li><li>Modern Technology Stack</li><li>Reliable Support</li></ul>',
-                    'right_content' => '<h3>Our Services</h3><p>From web development to mobile apps, we offer comprehensive digital solutions tailored to your business needs.</p><div class="bg-primary text-white p-4 rounded-lg mt-4"><strong>Ready to start your project?</strong><br>Contact us today for a free consultation.</div>',
-                    'layout' => '50-50',
+                [
+                    'type' => 'two_column',
+                    'data' => [
+                        'left_content' => '<h3>Why Choose Us?</h3><p>We provide modern, scalable solutions built with the latest technologies. Our team of experts ensures your project is delivered on time and exceeds expectations.</p><ul><li>Expert Development Team</li><li>Modern Technology Stack</li><li>Reliable Support</li></ul>',
+                        'right_content' => '<h3>Our Services</h3><p>From web development to mobile apps, we offer comprehensive digital solutions tailored to your business needs.</p><div class="bg-primary text-white p-4 rounded-lg mt-4"><strong>Ready to start your project?</strong><br>Contact us today for a free consultation.</div>',
+                        'layout' => '50-50',
+                    ],
                 ],
-            ],
-            [
-                'type' => 'cta',
-                'data' => [
-                    'title' => 'Ready to Get Started?',
-                    'subtitle' => 'Join thousands of satisfied customers and transform your business today.',
-                    'button_text' => 'Start Your Project',
-                    'button_url' => '/contact',
-                    'background_color' => 'primary',
+                [
+                    'type' => 'cta',
+                    'data' => [
+                        'title' => 'Ready to Get Started?',
+                        'subtitle' => 'Join thousands of satisfied customers and transform your business today.',
+                        'button_text' => 'Start Your Project',
+                        'button_url' => '/contact',
+                        'background_color' => 'primary',
+                    ],
                 ],
             ],
             'meta_title' => 'Home - Our Website',
             'meta_description' => 'Welcome to our website built with Laravel 12 and FilamentPHP.',
             'meta_keywords' => 'laravel, filament, cms, website',
+            'is_published' => true,
         ]);
     }
 }

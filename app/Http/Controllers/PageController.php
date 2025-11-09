@@ -13,12 +13,9 @@ class PageController extends Controller
      */
     public function home()
     {
-        $page = Page::where('slug', 'home')->first();
-
-        // Return 404 if page not found
-        if (!$page) {
-            abort(404);
-        }
+        $page = Page::where('slug', 'home')
+            ->published()
+            ->firstOrFail();
 
         return view('page', compact('page'));
     }
@@ -28,12 +25,9 @@ class PageController extends Controller
      */
     public function show($slug)
     {
-        $page = Page::where('slug', $slug)->first();
-
-        // Return 404 if page not found
-        if (!$page) {
-            abort(404);
-        }
+        $page = Page::where('slug', $slug)
+            ->published()
+            ->firstOrFail();
 
         return view('page', compact('page'));
     }
