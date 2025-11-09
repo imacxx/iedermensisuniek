@@ -4,6 +4,9 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+// Sanctum CSRF cookie route
+Route::get('/sanctum/csrf-cookie', [\Laravel\Sanctum\Http\Controllers\CsrfCookieController::class, 'show']);
+
 Route::get('/', [PageController::class, 'home'])->name('home');
 
 Route::get('/{slug}', [PageController::class, 'show'])

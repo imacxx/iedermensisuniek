@@ -102,18 +102,18 @@
                     $template = \App\Services\BlockSchema::getBlockTemplate($blockType);
                 @endphp
 
-                <div class="block-wrapper relative group" data-block-index="{{ $index }}" data-block-type="{{ $blockType }}">
+                <div class="block-wrapper relative group resizable-block" data-block-index="{{ $index }}" data-block-type="{{ $blockType }}" style="min-height: 100px;{{ isset($blockData['custom_height']) ? ' height: ' . $blockData['custom_height'] . 'px;' : '' }}">
                     @if($canEdit)
                         <!-- Edit Overlay (visible on hover) -->
                         <div class="block-controls absolute inset-0 bg-blue-500 bg-opacity-0 group-hover:bg-opacity-10 transition-all pointer-events-none border-2 border-transparent group-hover:border-blue-300 rounded">
                             <!-- Drag Handle (left side) -->
-                            <div class="drag-handle absolute left-2 top-2 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-700 hover:bg-neutral-800 text-white p-2 rounded cursor-grab shadow-lg">
+                            <div class="drag-handle absolute left-2 top-2 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-700 hover:bg-neutral-800 text-white p-2 rounded cursor-grab shadow-lg z-10">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
                                 </svg>
                             </div>
                             <!-- Action Buttons (right side) -->
-                            <div class="absolute top-2 right-2 flex space-x-2 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="absolute top-2 right-2 flex space-x-2 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                 <button class="edit-block-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-medium shadow-lg flex items-center space-x-1">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -127,8 +127,14 @@
                                     <span>Verwijderen</span>
                                 </button>
                             </div>
+                            <!-- Resize Handle (bottom right) -->
+                            <div class="resize-handle absolute bottom-0 right-0 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 text-white p-2 rounded-tl cursor-nwse-resize shadow-lg z-10">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" transform="rotate(45 12 12)" />
+                                </svg>
+                            </div>
                             <!-- Block Type Label (bottom left) -->
-                            <div class="absolute bottom-2 left-2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="absolute bottom-2 left-2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                 <span class="bg-neutral-900 text-white px-2 py-1 rounded text-xs font-medium">{{ ucfirst($blockType) }} Block</span>
                             </div>
                         </div>

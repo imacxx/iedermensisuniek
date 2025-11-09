@@ -18,6 +18,7 @@ class InlinePageEditor {
         await this.prepareCsrf();
         await this.loadBlockSchemas();
         this.initDragAndDrop();
+        this.initResizable();
         this.bindEvents();
         console.log('Inline WYSIWYG editor initialized with', Object.keys(this.blockSchemas).length, 'block types');
         
@@ -29,10 +30,16 @@ class InlinePageEditor {
 
     async prepareCsrf() {
         try {
-            await fetch(this.csrfCookieUrl, {
+            console.log('Fetching CSRF cookie from:', this.csrfCookieUrl);
+            const response = await fetch(this.csrfCookieUrl, {
                 method: 'GET',
                 credentials: 'same-origin',
             });
+            console.log('CSRF cookie response:', response.status);
+            
+            if (!response.ok) {
+                console.error('Failed to get CSRF cookie');
+            }
         } catch (error) {
             console.error('CSRF preparation error:', error);
         }
@@ -77,13 +84,66 @@ class InlinePageEditor {
                         this.blocks.splice(newIndex, 0, movedBlock);
                         
                         this.hasChanges = true;
-                        this.updateStatus('Blocks reordered - click Save Changes');
+                        this.updateStatus('Blokken opnieuw geordend - klik op Wijzigingen Opslaan');
                     }
                 }
             });
             
             console.log('Drag and drop initialized');
         }
+    }
+
+    initResizable() {
+        // Initialize resize functionality for blocks
+        document.querySelectorAll('.resizable-block').forEach(block => {
+            const resizeHandle = block.querySelector('.resize-handle');
+            if (!resizeHandle) return;
+
+            let startY, startHeight, isResizing = false;
+            const blockIndex = parseInt(block.dataset.blockIndex);
+
+            resizeHandle.addEventListener('mousedown', (e) => {
+                isResizing = true;
+                startY = e.clientY;
+                startHeight = parseInt(document.defaultView.getComputedStyle(block).height, 10);
+                e.preventDefault();
+                
+                document.body.style.cursor = 'nwse-resize';
+                block.style.transition = 'none';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizing) return;
+                
+                const height = startHeight + (e.clientY - startY);
+                if (height > 50) { // Minimum height
+                    block.style.height = height + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizing) {
+                    isResizing = false;
+                    document.body.style.cursor = '';
+                    block.style.transition = '';
+                    
+                    // Store the height in the block data
+                    const finalHeight = parseInt(block.style.height);
+                    if (this.blocks[blockIndex]) {
+                        if (!this.blocks[blockIndex].data) {
+                            this.blocks[blockIndex].data = {};
+                        }
+                        this.blocks[blockIndex].data.custom_height = finalHeight;
+                    }
+                    
+                    this.hasChanges = true;
+                    this.updateStatus('Blok aangepast - klik op Wijzigingen Opslaan');
+                    console.log('Block resized:', blockIndex, 'height:', finalHeight);
+                }
+            });
+        });
+        
+        console.log('Resizable blocks initialized');
     }
 
     bindEvents() {
@@ -268,18 +328,31 @@ class InlinePageEditor {
                     html += `<option value="${opt}" ${value === opt ? 'selected' : ''}>${opt}</option>`;
                 });
                 html += `</select>`;
-            } else if (field.includes('image') || field.includes('url')) {
-                // Image/URL field with preview
+            } else if (field.includes('image') || field.includes('url') || field.includes('background')) {
+                // Image/URL field with preview and drag-drop upload
                 html += `<div class="space-y-2">`;
-                html += `<input type="text" name="${field}" value="${this.escapeHtml(String(value))}" placeholder="Voer URL in of upload afbeelding" class="w-full border-2 border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">`;
-                if (field.includes('image') && value) {
-                    html += `<div class="mt-2"><img src="${value}" alt="Voorbeeld" class="max-w-xs rounded border" /></div>`;
+                html += `<input type="text" name="${field}" value="${this.escapeHtml(String(value))}" placeholder="Voer URL in of upload afbeelding" class="w-full border-2 border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition image-url-input" data-field="${field}">`;
+                if ((field.includes('image') || field.includes('background')) && value) {
+                    html += `<div class="mt-2 image-preview-container">
+                        <img src="${value}" alt="Voorbeeld" class="max-w-full h-48 object-cover rounded-lg border-2 border-neutral-200" />
+                    </div>`;
                 }
-                html += `<button type="button" class="upload-image-btn mt-2 px-4 py-2 bg-neutral-100 hover:bg-neutral-200 rounded-lg text-sm font-medium transition">
-                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                    Afbeelding Uploaden
-                </button>`;
+                html += `
+                <div class="flex space-x-2">
+                    <input type="file" id="file-input-${field}" accept="image/*" class="hidden" data-field="${field}">
+                    <button type="button" class="upload-image-btn flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition" data-field="${field}">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        Afbeelding Uploaden
+                    </button>
+                    <div class="upload-dropzone flex-1 border-2 border-dashed border-neutral-300 rounded-lg px-4 py-2 text-center hover:border-blue-500 transition cursor-pointer bg-neutral-50" data-field="${field}">
+                        <svg class="w-6 h-6 inline text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                        <p class="text-xs text-neutral-500 mt-1">Of sleep afbeelding hier</p>
+                    </div>
+                </div>`;
                 html += `</div>`;
+                
+                // Bind upload events after render
+                setTimeout(() => this.bindImageUploadEvents(field), 100);
             } else {
                 html += `<input type="text" name="${field}" value="${this.escapeHtml(String(value))}" class="w-full border-2 border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Voer ${this.translateFieldName(field).toLowerCase()} in">`;
             }
@@ -318,6 +391,105 @@ class InlinePageEditor {
 
         // Store reference for later extraction
         container.quillInstance = quill;
+    }
+
+    bindImageUploadEvents(field) {
+        const uploadBtn = document.querySelector(`.upload-image-btn[data-field="${field}"]`);
+        const fileInput = document.getElementById(`file-input-${field}`);
+        const dropZone = document.querySelector(`.upload-dropzone[data-field="${field}"]`);
+        const urlInput = document.querySelector(`.image-url-input[data-field="${field}"]`);
+
+        if (uploadBtn && fileInput) {
+            uploadBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    this.uploadImage(file, field, urlInput);
+                }
+            });
+        }
+
+        if (dropZone) {
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-blue-500', 'bg-blue-50');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+                
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    this.uploadImage(file, field, urlInput);
+                }
+            });
+        }
+
+        // Live preview when URL changes
+        if (urlInput) {
+            urlInput.addEventListener('input', (e) => {
+                const previewContainer = urlInput.closest('.space-y-2').querySelector('.image-preview-container');
+                if (e.target.value && (field.includes('image') || field.includes('background'))) {
+                    if (previewContainer) {
+                        previewContainer.querySelector('img').src = e.target.value;
+                    } else {
+                        const newPreview = document.createElement('div');
+                        newPreview.className = 'mt-2 image-preview-container';
+                        newPreview.innerHTML = `<img src="${e.target.value}" alt="Voorbeeld" class="max-w-full h-48 object-cover rounded-lg border-2 border-neutral-200" />`;
+                        urlInput.after(newPreview);
+                    }
+                }
+            });
+        }
+    }
+
+    async uploadImage(file, field, urlInput) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            urlInput.value = 'Uploaden...';
+            urlInput.disabled = true;
+
+            const response = await fetch('/api/uploads', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRF-TOKEN': window.pageData.csrfToken
+                },
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                urlInput.value = data.url || data.path;
+                urlInput.disabled = false;
+                
+                // Trigger preview update
+                urlInput.dispatchEvent(new Event('input'));
+                
+                alert('Afbeelding succesvol geüpload!');
+            } else {
+                throw new Error('Upload mislukt');
+            }
+        } catch (error) {
+            console.error('Image upload error:', error);
+            alert('Fout bij uploaden van afbeelding. Probeer het opnieuw.');
+            urlInput.value = '';
+            urlInput.disabled = false;
+        }
     }
 
     renderArrayField(fieldName, items, config) {
@@ -488,24 +660,43 @@ class InlinePageEditor {
         saveBtn.disabled = true;
         this.updateStatus('Opslaan...');
         
+        console.log('Saving blocks:', this.blocks);
+        
         try {
+            // Get XSRF token from cookie
+            const xsrfToken = this.getCookie('XSRF-TOKEN');
+            console.log('XSRF-TOKEN cookie:', xsrfToken ? 'present' : 'missing');
+            
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': window.pageData.csrfToken
+            };
+            
+            // Add XSRF token if available (required by Sanctum)
+            if (xsrfToken) {
+                headers['X-XSRF-TOKEN'] = decodeURIComponent(xsrfToken);
+            }
+            
             const response = await fetch(this.apiUrl, {
                 method: 'PUT',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': window.pageData.csrfToken
-                },
+                credentials: 'include',
+                headers: headers,
                 body: JSON.stringify({ blocks: this.blocks })
             });
 
+            console.log('Response status:', response.status);
+            
             if (response.ok) {
+                const data = await response.json();
+                console.log('Save successful:', data);
                 this.hasChanges = false;
                 this.updateStatus('✓ Succesvol opgeslagen!');
                 setTimeout(() => location.reload(), 1000);
             } else {
-                this.updateStatus('❌ Opslaan mislukt - probeer het opnieuw');
+                const errorData = await response.text();
+                console.error('Save failed:', response.status, errorData);
+                this.updateStatus(`❌ Opslaan mislukt (${response.status}) - probeer het opnieuw`);
                 saveBtn.disabled = false;
             }
         } catch (error) {
@@ -513,6 +704,13 @@ class InlinePageEditor {
             this.updateStatus('❌ Fout - probeer het opnieuw');
             saveBtn.disabled = false;
         }
+    }
+    
+    getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
     }
 
     cancelEditing() {

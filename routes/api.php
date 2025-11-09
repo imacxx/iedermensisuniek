@@ -11,13 +11,13 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 
-// API routes for pages (accessible to both web and sanctum authenticated users)
-Route::middleware(['auth:sanctum,web'])->group(function (): void {
+// API routes for pages (accessible to authenticated users)
+Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/pages/{slug}', [PageController::class, 'show']);
     Route::put('/pages/{slug}', [PageController::class, 'update']);
 });
 
-// API route for uploads
+// API route for uploads (accessible to authenticated users)
 Route::post('/uploads', [UploadController::class, 'store'])->middleware('auth:sanctum');
 
 // Block schema endpoint (public - just metadata)

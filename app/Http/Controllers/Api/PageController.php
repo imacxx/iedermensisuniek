@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Page;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PageController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display the specified page by slug.
      */

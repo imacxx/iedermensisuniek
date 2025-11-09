@@ -7,8 +7,8 @@
         default => 'lg:grid-cols-2'
     };
 @endphp
-<div class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="bg-white h-full flex items-center">
+    <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 w-full">
         <div class="grid grid-cols-1 {{ $layoutClasses }} gap-8 lg:gap-12">
             <div class="prose prose-lg max-w-none">
                 {!! $data['left_content'] !!}

@@ -10,8 +10,8 @@
     $textClass = $bgColor === 'dark' ? 'text-white' : 'text-neutral-900';
     $buttonClass = $bgColor === 'dark' ? 'bg-white text-neutral-900 hover:bg-neutral-100' : 'bg-white text-primary hover:bg-neutral-50';
 @endphp
-<div class="py-16 {{ $bgClass }}">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+<div class="{{ $bgClass }} h-full flex items-center justify-center">
+    <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8 text-center">
         <h2 class="text-3xl font-bold {{ $textClass }} mb-4">
             {{ $data['title'] }}
         </h2>
