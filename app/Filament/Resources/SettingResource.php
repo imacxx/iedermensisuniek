@@ -4,34 +4,42 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SettingResource\Pages;
 use App\Models\Setting;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Components\Section;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class SettingResource extends Resource
 {
     protected static ?string $model = Setting::class;
 
-    protected static ?string $label = 'Global Settings';
+    protected static ?string $navigationLabel = 'Instellingen';
 
-    protected static ?string $pluralLabel = 'Global Settings';
+    protected static UnitEnum|string|null $navigationGroup = 'Configuratie';
+
+    protected static ?string $modelLabel = 'Instelling';
+
+    protected static ?string $pluralLabel = 'Globale instellingen';
+
+    protected static ?string $label = 'Instelling';
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
             Forms\Components\Hidden::make('key')
                 ->default('global_settings'),
-            Section::make('Site Identity')
+            Section::make('Site-identiteit')
                 ->schema([
                     Forms\Components\TextInput::make('value.site_title')
-                        ->label('Site Title')
+                        ->label('Website titel')
                         ->required()
                         ->maxLength(255),
                     Forms\Components\FileUpload::make('value.logo_image')
-                        ->label('Logo Image')
+                        ->label('Logo-afbeelding')
                         ->image()
                         ->directory('settings')
                         ->maxSize(2048),
@@ -42,52 +50,69 @@ class SettingResource extends Resource
                         ->acceptedFileTypes(['image/png', 'image/x-icon'])
                         ->maxSize(1024),
                 ])
-                ->columns(2),
-            Section::make('Navigation')
+                ->columns(3)
+                ->columnSpanFull(),
+            Section::make('Navigatie')
                 ->schema([
                     Forms\Components\Repeater::make('value.primary_navigation')
-                        ->label('Primary Navigation')
+                        ->label('Hoofdmenu')
                         ->schema([
                             Forms\Components\TextInput::make('label')
+                                ->label('Naam')
                                 ->required()
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('url')
+                                ->label('URL')
                                 ->required()
                                 ->maxLength(500),
                         ])
                         ->columns(2)
-                        ->default([]),
+                        ->default([])
+                        ->reorderable()
+                        ->addActionLabel('Link toevoegen'),
                     Forms\Components\Repeater::make('value.secondary_navigation')
-                        ->label('Secondary Navigation (Footer)')
+                        ->label('Voetmenu')
                         ->schema([
                             Forms\Components\TextInput::make('label')
+                                ->label('Naam')
                                 ->required()
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('url')
+                                ->label('URL')
                                 ->required()
                                 ->maxLength(500),
                         ])
                         ->columns(2)
-                        ->default([]),
-                ]),
+                        ->default([])
+                        ->reorderable()
+                        ->addActionLabel('Link toevoegen'),
+                ])
+                ->columns(1)
+                ->columnSpanFull(),
             Section::make('Footer')
                 ->schema([
                     Forms\Components\Textarea::make('value.footer_text')
-                        ->label('Footer Text')
+                        ->label('Voettekst')
                         ->rows(3),
                     Forms\Components\Repeater::make('value.footer_links')
-                        ->label('Footer Links')
+                        ->label('Links in voettekst')
                         ->schema([
                             Forms\Components\TextInput::make('label')
+                                ->label('Naam')
                                 ->required()
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('url')
+                                ->label('URL')
                                 ->required()
                                 ->maxLength(500),
                         ])
                         ->columns(2)
-                        ->default([]),
-                ]),
+                        ->default([])
+                        ->reorderable()
+                        ->addActionLabel('Link toevoegen'),
+                ])
+                ->columns(1)
+                ->columnSpanFull(),
         ]);
     }
 
@@ -96,10 +121,10 @@ class SettingResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('key')
-                    ->label('Key')
+                    ->label('Sleutel')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('value.site_title')
-                    ->label('Site Title')
+                    ->label('Website titel')
                     ->default('—'),
                 Tables\Columns\IconColumn::make('value.logo_image')
                     ->label('Logo')
@@ -112,20 +137,18 @@ class SettingResource extends Resource
                     ->trueIcon('heroicon-o-check')
                     ->falseIcon('heroicon-o-x-mark'),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Updated')
+                    ->label('Bijgewerkt op')
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            ->toolbarActions([
+                Actions\DeleteBulkAction::make(),
             ])
             ->modifyQueryUsing(fn ($query) => $query->where('key', 'global_settings'));
     }

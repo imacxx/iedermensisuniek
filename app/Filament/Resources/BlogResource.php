@@ -5,18 +5,27 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BlogResource\Pages;
 use App\Models\Blog;
 use Filament\Forms;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use Filament\Actions;
+use UnitEnum;
 
 class BlogResource extends Resource
 {
     protected static ?string $model = Blog::class;
+
+    protected static ?string $navigationLabel = 'Blogartikelen';
+
+    protected static UnitEnum|string|null $navigationGroup = 'Inhoud';
+
+    protected static ?string $modelLabel = 'Blogartikel';
+
+    protected static ?string $pluralLabel = 'Blogartikelen';
 
     public static function form(Schema $schema): Schema
     {
@@ -81,39 +90,39 @@ class BlogResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')
+                    ->label('Titel')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('is_published')
-                    ->label('Published')
+                    ->label('Gepubliceerd')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('published_at')
-                    ->label('Published At')
+                    ->label('Publicatiedatum')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('categories.name')
-                    ->label('Categories')
+                    ->label('Categorieën')
                     ->badge()
                     ->separator(', '),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Updated')
+                    ->label('Bijgewerkt op')
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_published')
-                    ->label('Published')
+                    ->label('Gepubliceerd')
                     ->boolean(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            ->toolbarActions([
+                Actions\DeleteBulkAction::make(),
             ]);
     }
 

@@ -4,18 +4,28 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PageResource\Pages;
 use App\Models\Page;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use UnitEnum;
 
 class PageResource extends Resource
 {
     protected static ?string $model = Page::class;
+
+    protected static ?string $navigationLabel = 'Pagina\'s';
+
+    protected static UnitEnum|string|null $navigationGroup = 'Inhoud';
+
+    protected static ?string $modelLabel = 'Pagina';
+
+    protected static ?string $pluralLabel = 'Pagina\'s';
 
     public static function form(Schema $schema): Schema
     {
@@ -77,13 +87,11 @@ class PageResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            ->toolbarActions([
+                Actions\DeleteBulkAction::make(),
             ]);
     }
 

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Models\Category;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
@@ -11,10 +12,19 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use UnitEnum;
 
 class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
+
+    protected static ?string $navigationLabel = 'Categorieën';
+
+    protected static UnitEnum|string|null $navigationGroup = 'Inhoud';
+
+    protected static ?string $modelLabel = 'Categorie';
+
+    protected static ?string $pluralLabel = 'Categorieën';
 
     public static function form(Schema $schema): Schema
     {
@@ -44,32 +54,33 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Naam')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('description')
+                    ->label('Beschrijving')
                     ->limit(60),
                 Tables\Columns\TextColumn::make('blogs_count')
                     ->label('Blogs')
                     ->counts('blogs')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Updated')
+                    ->label('Bijgewerkt op')
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            ->toolbarActions([
+                Actions\DeleteBulkAction::make(),
             ]);
     }
 
