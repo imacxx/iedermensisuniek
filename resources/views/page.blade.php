@@ -42,6 +42,52 @@
             </div>
         </div>
 
+        <!-- Rich Text Editor - Quill -->
+        <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+        <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+        
+        <!-- SortableJS for drag and drop -->
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+        
+        <!-- Custom Editor Styles -->
+        <style>
+            .sortable-ghost {
+                opacity: 0.4;
+                background: #e3f2fd;
+            }
+            .sortable-drag {
+                opacity: 1;
+                cursor: grabbing !important;
+            }
+            .block-wrapper {
+                cursor: grab;
+                transition: all 0.2s ease;
+            }
+            .block-wrapper:active {
+                cursor: grabbing;
+            }
+            .drag-handle {
+                cursor: grab;
+            }
+            .drag-handle:active {
+                cursor: grabbing;
+            }
+            /* Quill editor customization */
+            .ql-container {
+                font-size: 16px;
+                font-family: inherit;
+            }
+            .ql-editor {
+                min-height: 200px;
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            .ql-editor.ql-blank::before {
+                font-style: normal;
+                color: #9ca3af;
+            }
+        </style>
+        
         <!-- Inline Editor Assets -->
         @vite(['resources/js/inline-editor.js'])
     @endif
@@ -59,20 +105,31 @@
                 <div class="block-wrapper relative group" data-block-index="{{ $index }}" data-block-type="{{ $blockType }}">
                     @if($canEdit)
                         <!-- Edit Overlay (visible on hover) -->
-                        <div class="block-controls absolute inset-0 bg-blue-500 bg-opacity-0 group-hover:bg-opacity-10 transition-all pointer-events-none">
+                        <div class="block-controls absolute inset-0 bg-blue-500 bg-opacity-0 group-hover:bg-opacity-10 transition-all pointer-events-none border-2 border-transparent group-hover:border-blue-300 rounded">
+                            <!-- Drag Handle (left side) -->
+                            <div class="drag-handle absolute left-2 top-2 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-700 hover:bg-neutral-800 text-white p-2 rounded cursor-grab shadow-lg">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                                </svg>
+                            </div>
+                            <!-- Action Buttons (right side) -->
                             <div class="absolute top-2 right-2 flex space-x-2 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button class="edit-block-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium shadow-lg">
-                                    Edit
+                                <button class="edit-block-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-medium shadow-lg flex items-center space-x-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    <span>Edit</span>
                                 </button>
-                                <button class="move-up-btn bg-neutral-600 hover:bg-neutral-700 text-white px-3 py-1 rounded text-xs font-medium shadow-lg">
-                                    ↑
+                                <button class="delete-block-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-medium shadow-lg flex items-center space-x-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    <span>Delete</span>
                                 </button>
-                                <button class="move-down-btn bg-neutral-600 hover:bg-neutral-700 text-white px-3 py-1 rounded text-xs font-medium shadow-lg">
-                                    ↓
-                                </button>
-                                <button class="delete-block-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium shadow-lg">
-                                    Delete
-                                </button>
+                            </div>
+                            <!-- Block Type Label (bottom left) -->
+                            <div class="absolute bottom-2 left-2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="bg-neutral-900 text-white px-2 py-1 rounded text-xs font-medium">{{ ucfirst($blockType) }} Block</span>
                             </div>
                         </div>
                     @endif

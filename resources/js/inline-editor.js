@@ -1,4 +1,4 @@
-// Frontend Inline Editor for Pages
+// Frontend Inline WYSIWYG Editor for Pages
 class InlinePageEditor {
     constructor() {
         this.blocks = window.pageData?.blocks || [];
@@ -8,6 +8,8 @@ class InlinePageEditor {
         this.blockSchemas = {};
         this.currentEditingIndex = null;
         this.hasChanges = false;
+        this.quillEditor = null;
+        this.sortable = null;
         
         this.init();
     }
@@ -15,8 +17,9 @@ class InlinePageEditor {
     async init() {
         await this.prepareCsrf();
         await this.loadBlockSchemas();
+        this.initDragAndDrop();
         this.bindEvents();
-        console.log('Inline editor initialized with', Object.keys(this.blockSchemas).length, 'block types');
+        console.log('Inline WYSIWYG editor initialized with', Object.keys(this.blockSchemas).length, 'block types');
         
         if (Object.keys(this.blockSchemas).length === 0) {
             console.error('No block schemas loaded! Editor may not work correctly.');
@@ -53,6 +56,33 @@ class InlinePageEditor {
             }
         } catch (error) {
             console.error('Failed to load block schemas:', error);
+        }
+    }
+
+    initDragAndDrop() {
+        const contentArea = document.getElementById('editable-content');
+        if (contentArea && window.Sortable) {
+            this.sortable = new Sortable(contentArea, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                onEnd: (evt) => {
+                    const oldIndex = evt.oldIndex;
+                    const newIndex = evt.newIndex;
+                    
+                    if (oldIndex !== newIndex) {
+                        // Update blocks array
+                        const movedBlock = this.blocks.splice(oldIndex, 1)[0];
+                        this.blocks.splice(newIndex, 0, movedBlock);
+                        
+                        this.hasChanges = true;
+                        this.updateStatus('Blocks reordered - click Save Changes');
+                    }
+                }
+            });
+            
+            console.log('Drag and drop initialized');
         }
     }
 
@@ -105,37 +135,63 @@ class InlinePageEditor {
 
         modalTitle.textContent = 'Add New Block';
         
-        // Show block type selector
+        // Show block type selector with previews
         const blockTypes = Object.keys(this.blockSchemas);
         modalContent.innerHTML = `
             <div class="space-y-4">
-                <label class="block text-sm font-medium text-neutral-700">Select Block Type</label>
-                <select id="new-block-type" class="w-full border border-neutral-300 rounded-md px-3 py-2">
-                    <option value="">-- Choose a block type --</option>
-                    ${blockTypes.map(type => `
-                        <option value="${type}">${this.blockSchemas[type].name}</option>
-                    `).join('')}
-                </select>
-                <p class="text-sm text-neutral-500">Select a block type to configure its content.</p>
+                <label class="block text-sm font-medium text-neutral-700 mb-3">Choose a block type to add:</label>
+                <div class="grid grid-cols-2 gap-4">
+                    ${blockTypes.map(type => {
+                        const schema = this.blockSchemas[type];
+                        return `
+                            <button type="button" 
+                                    class="block-type-selector p-4 border-2 border-neutral-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left group"
+                                    data-block-type="${type}">
+                                <div class="flex items-start space-x-3">
+                                    <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200">
+                                        ${this.getBlockIcon(type)}
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-neutral-900 group-hover:text-blue-600">${schema.name}</h3>
+                                        <p class="text-xs text-neutral-500 mt-1">${schema.description}</p>
+                                    </div>
+                                </div>
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
             </div>
         `;
 
-        // Change handler to show block configuration
-        document.getElementById('new-block-type').addEventListener('change', (e) => {
-            const type = e.target.value;
-            if (type) {
-                this.currentEditingIndex = -1; // -1 indicates new block
+        // Add click handlers for block type selection
+        modalContent.querySelectorAll('.block-type-selector').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.dataset.blockType;
+                this.currentEditingIndex = -1;
+                modalTitle.textContent = `Add ${this.blockSchemas[type].name}`;
                 this.showBlockEditor(type, this.getDefaultBlockData(type));
-            }
+            });
         });
 
         modal.classList.remove('hidden');
     }
 
+    getBlockIcon(type) {
+        const icons = {
+            'hero': '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>',
+            'text': '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>',
+            'image': '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>',
+            'gallery': '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>',
+            'features': '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+            'two_column': '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4H5a2 2 0 00-2 2v14a2 2 0 002 2h4m10-18h4a2 2 0 012 2v14a2 2 0 01-2 2h-4m-6-18v18"/></svg>',
+            'cta': '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>',
+        };
+        return icons[type] || '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>';
+    }
+
     editBlock(index) {
         if (Object.keys(this.blockSchemas).length === 0) {
             alert('Editor not ready yet. Block schemas are still loading. Please wait a moment and try again.');
-            console.error('Attempted to edit block before schemas loaded');
             return;
         }
 
@@ -145,9 +201,7 @@ class InlinePageEditor {
         const modal = document.getElementById('block-edit-modal');
         const modalTitle = document.getElementById('modal-title');
         
-        modalTitle.textContent = `Edit ${this.blockSchemas[block.type]?.name || block.type} Block`;
-        
-        console.log('Editing block:', index, 'Type:', block.type, 'Data:', block.data);
+        modalTitle.textContent = `Edit ${this.blockSchemas[block.type]?.name || block.type}`;
         
         this.showBlockEditor(block.type, block.data);
         modal.classList.remove('hidden');
@@ -157,33 +211,51 @@ class InlinePageEditor {
         const schema = this.blockSchemas[blockType];
         if (!schema) {
             console.error('Schema not found for block type:', blockType);
-            console.log('Available schemas:', Object.keys(this.blockSchemas));
             return;
         }
 
         const modalContent = document.getElementById('modal-content');
-        let html = `<div class="space-y-4" data-block-type="${blockType}">`;
+        let html = `<div class="space-y-6" data-block-type="${blockType}">`;
 
         for (const [field, config] of Object.entries(schema.schema)) {
             const value = blockData[field] !== undefined ? blockData[field] : (config.default || '');
             
             html += `<div class="form-group">`;
-            html += `<label class="block text-sm font-medium text-neutral-700 mb-2">${this.formatLabel(field)}</label>`;
+            html += `<label class="block text-sm font-semibold text-neutral-900 mb-2">${this.formatLabel(field)}</label>`;
 
             if (config.type === 'html' || field.includes('content')) {
-                // Use a larger textarea for HTML/content fields
-                html += `<textarea name="${field}" rows="12" class="w-full border border-neutral-300 rounded-md px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">${this.escapeHtml(String(value))}</textarea>`;
-                html += `<p class="mt-1 text-xs text-neutral-500">You can use HTML tags like &lt;p&gt;, &lt;h1&gt;-&lt;h6&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, etc.</p>`;
+                // Use Quill WYSIWYG editor for HTML content
+                html += `<div id="quill-${field}" class="bg-white border border-neutral-300 rounded-lg" style="min-height: 200px;"></div>`;
+                html += `<input type="hidden" name="${field}" value="">`;
+                html += `<p class="mt-2 text-xs text-neutral-500">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Use the toolbar to format text, add links, lists, and more
+                </p>`;
+                
+                // Store value to initialize Quill later
+                setTimeout(() => this.initQuillEditor(field, value), 100);
             } else if (config.type === 'array') {
                 html += this.renderArrayField(field, value, config);
             } else if (config.options) {
-                html += `<select name="${field}" class="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">`;
+                html += `<select name="${field}" class="w-full border-2 border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">`;
                 config.options.forEach(opt => {
                     html += `<option value="${opt}" ${value === opt ? 'selected' : ''}>${opt}</option>`;
                 });
                 html += `</select>`;
+            } else if (field.includes('image') || field.includes('url')) {
+                // Image/URL field with preview
+                html += `<div class="space-y-2">`;
+                html += `<input type="text" name="${field}" value="${this.escapeHtml(String(value))}" placeholder="Enter URL or upload image" class="w-full border-2 border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">`;
+                if (field.includes('image') && value) {
+                    html += `<div class="mt-2"><img src="${value}" alt="Preview" class="max-w-xs rounded border" /></div>`;
+                }
+                html += `<button type="button" class="upload-image-btn mt-2 px-4 py-2 bg-neutral-100 hover:bg-neutral-200 rounded-lg text-sm font-medium transition">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    Upload Image
+                </button>`;
+                html += `</div>`;
             } else {
-                html += `<input type="text" name="${field}" value="${this.escapeHtml(String(value))}" class="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">`;
+                html += `<input type="text" name="${field}" value="${this.escapeHtml(String(value))}" class="w-full border-2 border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter ${this.formatLabel(field).toLowerCase()}">`;
             }
 
             html += `</div>`;
@@ -191,43 +263,78 @@ class InlinePageEditor {
 
         html += `</div>`;
         modalContent.innerHTML = html;
-        
-        console.log('Block editor rendered for:', blockType, 'with data:', blockData);
+    }
+
+    initQuillEditor(field, initialContent) {
+        const container = document.getElementById(`quill-${field}`);
+        if (!container || !window.Quill) return;
+
+        const quill = new Quill(`#quill-${field}`, {
+            theme: 'snow',
+            placeholder: 'Start writing your content...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'align': [] }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // Set initial content
+        if (initialContent) {
+            quill.root.innerHTML = initialContent;
+        }
+
+        // Store reference for later extraction
+        container.quillInstance = quill;
     }
 
     renderArrayField(fieldName, items, config) {
-        let html = `<div class="array-field space-y-2" data-field="${fieldName}">`;
+        let html = `<div class="array-field space-y-3 border-2 border-dashed border-neutral-300 rounded-lg p-4" data-field="${fieldName}">`;
         
-        if (Array.isArray(items)) {
+        if (Array.isArray(items) && items.length > 0) {
             items.forEach((item, idx) => {
-                html += `<div class="array-item border border-neutral-200 rounded p-3 bg-neutral-50" data-item-index="${idx}">`;
-                html += `<div class="flex justify-between items-center mb-2">`;
-                html += `<span class="text-sm font-medium text-neutral-600">Item ${idx + 1}</span>`;
-                html += `<button type="button" class="remove-array-item text-red-600 hover:text-red-800 text-sm">Remove</button>`;
+                html += `<div class="array-item bg-neutral-50 border border-neutral-200 rounded-lg p-4" data-item-index="${idx}">`;
+                html += `<div class="flex justify-between items-center mb-3">`;
+                html += `<span class="text-sm font-semibold text-neutral-700">Item ${idx + 1}</span>`;
+                html += `<button type="button" class="remove-array-item text-red-600 hover:text-red-800 font-medium text-sm px-3 py-1 hover:bg-red-50 rounded transition">Remove</button>`;
                 html += `</div>`;
+                html += `<div class="space-y-2">`;
                 
                 if (config.item_schema) {
                     for (const [subField, subConfig] of Object.entries(config.item_schema)) {
                         const subValue = item[subField] || '';
-                        html += `<div class="mb-2">`;
+                        html += `<div>`;
                         html += `<label class="block text-xs font-medium text-neutral-600 mb-1">${this.formatLabel(subField)}</label>`;
-                        html += `<input type="text" name="${fieldName}[${idx}][${subField}]" value="${this.escapeHtml(subValue)}" class="w-full border border-neutral-300 rounded px-2 py-1 text-sm">`;
+                        html += `<input type="text" name="${fieldName}[${idx}][${subField}]" value="${this.escapeHtml(subValue)}" class="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter ${this.formatLabel(subField).toLowerCase()}">`;
                         html += `</div>`;
                     }
                 }
                 
-                html += `</div>`;
+                html += `</div></div>`;
             });
+        } else {
+            html += `<p class="text-sm text-neutral-500 text-center py-4">No items yet. Click "Add Item" to get started.</p>`;
         }
         
-        html += `<button type="button" class="add-array-item mt-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">Add Item</button>`;
+        html += `<button type="button" class="add-array-item w-full mt-3 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add Item
+        </button>`;
         html += `</div>`;
         
         // Bind array item events
         setTimeout(() => {
             document.querySelectorAll('.remove-array-item').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    e.target.closest('.array-item').remove();
+                    if (confirm('Remove this item?')) {
+                        e.target.closest('.array-item').remove();
+                    }
                 });
             });
             
@@ -239,6 +346,14 @@ class InlinePageEditor {
                     
                     const newItemHtml = this.createArrayItemHtml(fieldName, newIndex, config);
                     btn.insertAdjacentHTML('beforebegin', newItemHtml);
+                    
+                    // Re-bind remove event
+                    const newItem = arrayField.querySelector(`[data-item-index="${newIndex}"]`);
+                    newItem.querySelector('.remove-array-item').addEventListener('click', (e) => {
+                        if (confirm('Remove this item?')) {
+                            e.target.closest('.array-item').remove();
+                        }
+                    });
                 });
             });
         }, 0);
@@ -247,22 +362,23 @@ class InlinePageEditor {
     }
 
     createArrayItemHtml(fieldName, index, config) {
-        let html = `<div class="array-item border border-neutral-200 rounded p-3 bg-neutral-50" data-item-index="${index}">`;
-        html += `<div class="flex justify-between items-center mb-2">`;
-        html += `<span class="text-sm font-medium text-neutral-600">Item ${index + 1}</span>`;
-        html += `<button type="button" class="remove-array-item text-red-600 hover:text-red-800 text-sm">Remove</button>`;
+        let html = `<div class="array-item bg-neutral-50 border border-neutral-200 rounded-lg p-4" data-item-index="${index}">`;
+        html += `<div class="flex justify-between items-center mb-3">`;
+        html += `<span class="text-sm font-semibold text-neutral-700">Item ${index + 1}</span>`;
+        html += `<button type="button" class="remove-array-item text-red-600 hover:text-red-800 font-medium text-sm px-3 py-1 hover:bg-red-50 rounded transition">Remove</button>`;
         html += `</div>`;
+        html += `<div class="space-y-2">`;
         
         if (config.item_schema) {
             for (const [subField, subConfig] of Object.entries(config.item_schema)) {
-                html += `<div class="mb-2">`;
+                html += `<div>`;
                 html += `<label class="block text-xs font-medium text-neutral-600 mb-1">${this.formatLabel(subField)}</label>`;
-                html += `<input type="text" name="${fieldName}[${index}][${subField}]" value="" class="w-full border border-neutral-300 rounded px-2 py-1 text-sm">`;
+                html += `<input type="text" name="${fieldName}[${index}][${subField}]" value="" class="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter ${this.formatLabel(subField).toLowerCase()}">`;
                 html += `</div>`;
             }
         }
         
-        html += `</div>`;
+        html += `</div></div>`;
         return html;
     }
 
@@ -279,28 +395,35 @@ class InlinePageEditor {
         const blockData = this.extractBlockData(modalContent);
 
         if (this.currentEditingIndex === -1) {
-            // New block
             this.blocks.push({ type: blockType, data: blockData });
+            this.updateStatus('Block added - click Save Changes to publish');
         } else {
-            // Update existing
             this.blocks[this.currentEditingIndex].data = blockData;
+            this.updateStatus('Block updated - click Save Changes to publish');
         }
 
         this.hasChanges = true;
-        this.updateStatus('Changes pending - click Save Changes');
         this.closeModal();
-        this.reloadContent();
+        location.reload(); // Reload to show changes
     }
 
     extractBlockData(container) {
         const data = {};
-        const inputs = container.querySelectorAll('input, textarea, select');
         
+        // Extract Quill content
+        container.querySelectorAll('[id^="quill-"]').forEach(quillContainer => {
+            if (quillContainer.quillInstance) {
+                const fieldName = quillContainer.id.replace('quill-', '');
+                data[fieldName] = quillContainer.quillInstance.root.innerHTML;
+            }
+        });
+        
+        // Extract regular inputs
+        const inputs = container.querySelectorAll('input:not([type="hidden"]), textarea, select');
         inputs.forEach(input => {
             const name = input.name;
             if (!name) return;
 
-            // Handle array fields
             const arrayMatch = name.match(/(\w+)\[(\d+)\]\[(\w+)\]/);
             if (arrayMatch) {
                 const [, fieldName, index, subField] = arrayMatch;
@@ -316,11 +439,11 @@ class InlinePageEditor {
     }
 
     deleteBlock(index) {
-        if (confirm('Are you sure you want to delete this block?')) {
+        if (confirm('Are you sure you want to delete this block? This cannot be undone.')) {
             this.blocks.splice(index, 1);
             this.hasChanges = true;
             this.updateStatus('Block deleted - click Save Changes');
-            this.reloadContent();
+            location.reload();
         }
     }
 
@@ -331,10 +454,12 @@ class InlinePageEditor {
         [this.blocks[index], this.blocks[newIndex]] = [this.blocks[newIndex], this.blocks[index]];
         this.hasChanges = true;
         this.updateStatus('Block moved - click Save Changes');
-        this.reloadContent();
+        location.reload();
     }
 
     async savePage() {
+        const saveBtn = document.getElementById('save-page-btn');
+        saveBtn.disabled = true;
         this.updateStatus('Saving...');
         
         try {
@@ -351,34 +476,31 @@ class InlinePageEditor {
 
             if (response.ok) {
                 this.hasChanges = false;
-                this.updateStatus('Saved successfully!');
+                this.updateStatus('✓ Saved successfully!');
                 setTimeout(() => location.reload(), 1000);
             } else {
-                this.updateStatus('Save failed - please try again');
+                this.updateStatus('❌ Save failed - please try again');
+                saveBtn.disabled = false;
             }
         } catch (error) {
             console.error('Save error:', error);
-            this.updateStatus('Error saving - please try again');
+            this.updateStatus('❌ Error - please try again');
+            saveBtn.disabled = false;
         }
     }
 
     cancelEditing() {
-        if (this.hasChanges && !confirm('Discard unsaved changes?')) {
+        if (this.hasChanges && !confirm('Discard all unsaved changes?')) {
             return;
         }
         location.reload();
     }
 
-    reloadContent() {
-        const content = document.getElementById('editable-content');
-        // This is a simplified reload - in production you'd re-render from blocks
-        // For now, just mark as changed
-        this.updateStatus(`${this.blocks.length} blocks - unsaved changes`);
-    }
-
     closeModal() {
-        document.getElementById('block-edit-modal').classList.add('hidden');
+        const modal = document.getElementById('block-edit-modal');
+        modal.classList.add('hidden');
         this.currentEditingIndex = null;
+        this.quillEditor = null;
     }
 
     toggleToolbar() {
@@ -409,9 +531,7 @@ class InlinePageEditor {
     }
 
     escapeHtml(text) {
-        if (text === null || text === undefined) {
-            return '';
-        }
+        if (text === null || text === undefined) return '';
         const div = document.createElement('div');
         div.textContent = String(text);
         return div.innerHTML;
@@ -430,4 +550,3 @@ if (document.readyState === 'loading') {
         new InlinePageEditor();
     }
 }
-
