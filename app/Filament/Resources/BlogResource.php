@@ -33,6 +33,7 @@ class BlogResource extends Resource
             Section::make('Blog Details')
                 ->schema([
                     Forms\Components\TextInput::make('title')
+                        ->label('Titel')
                         ->required()
                         ->maxLength(255)
                         ->live(onBlur: true)
@@ -42,46 +43,52 @@ class BlogResource extends Resource
                             }
                         }),
                     Forms\Components\TextInput::make('slug')
+                        ->label('Slug')
                         ->required()
                         ->maxLength(255)
                         ->unique(ignoreRecord: true),
                     Forms\Components\Textarea::make('excerpt')
+                        ->label('Samenvatting')
                         ->maxLength(500)
                         ->rows(3),
                     Forms\Components\RichEditor::make('body')
-                        ->label('Content')
+                        ->label('Inhoud')
                         ->columnSpanFull()
                         ->required(),
                     Forms\Components\Select::make('categories')
                         ->relationship('categories', 'name')
-                        ->label('Categories')
+                        ->label('Categorieën')
                         ->multiple()
                         ->preload(),
                     Forms\Components\FileUpload::make('featured_image')
+                        ->label('Uitgelichte afbeelding')
                         ->image()
                         ->directory('blogs')
-                        ->label('Featured Image'),
+                        ->enableOpen()
+                        ->enableDownload(),
                     Forms\Components\DatePicker::make('published_at')
-                        ->label('Publish Date'),
+                        ->label('Publicatiedatum'),
                     Forms\Components\Toggle::make('is_published')
-                        ->label('Published')
+                        ->label('Gepubliceerd')
                         ->default(false),
                 ])
-                ->columns(2),
+                ->columns(2)
+                ->columnSpanFull(),
             Section::make('SEO')
                 ->schema([
                     Forms\Components\TextInput::make('seo_title')
-                        ->label('SEO Title')
+                        ->label('SEO-titel')
                         ->maxLength(255),
                     Forms\Components\Textarea::make('seo_description')
-                        ->label('SEO Description')
+                        ->label('SEO-beschrijving')
                         ->rows(3),
                     Forms\Components\TextInput::make('meta_keywords')
-                        ->label('Meta Keywords')
-                        ->helperText('Comma separated keywords')
+                        ->label('Meta-trefwoorden')
+                        ->helperText('Komma-gescheiden trefwoorden')
                         ->maxLength(255),
                 ])
-                ->columns(1),
+                ->columns(1)
+                ->columnSpanFull(),
         ]);
     }
 
