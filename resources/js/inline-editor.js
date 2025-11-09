@@ -133,13 +133,13 @@ class InlinePageEditor {
         const modalTitle = document.getElementById('modal-title');
         const modalContent = document.getElementById('modal-content');
 
-        modalTitle.textContent = 'Add New Block';
+        modalTitle.textContent = 'Nieuw Blok Toevoegen';
         
         // Show block type selector with previews
         const blockTypes = Object.keys(this.blockSchemas);
         modalContent.innerHTML = `
             <div class="space-y-4">
-                <label class="block text-sm font-medium text-neutral-700 mb-3">Choose a block type to add:</label>
+                <label class="block text-sm font-medium text-neutral-700 mb-3">Kies een bloktype om toe te voegen:</label>
                 <div class="grid grid-cols-2 gap-4">
                     ${blockTypes.map(type => {
                         const schema = this.blockSchemas[type];
@@ -152,8 +152,8 @@ class InlinePageEditor {
                                         ${this.getBlockIcon(type)}
                                     </div>
                                     <div>
-                                        <h3 class="font-semibold text-neutral-900 group-hover:text-blue-600">${schema.name}</h3>
-                                        <p class="text-xs text-neutral-500 mt-1">${schema.description}</p>
+                                        <h3 class="font-semibold text-neutral-900 group-hover:text-blue-600">${this.translateBlockName(type)}</h3>
+                                        <p class="text-xs text-neutral-500 mt-1">${this.translateBlockDescription(type)}</p>
                                     </div>
                                 </div>
                             </button>
@@ -168,12 +168,38 @@ class InlinePageEditor {
             btn.addEventListener('click', () => {
                 const type = btn.dataset.blockType;
                 this.currentEditingIndex = -1;
-                modalTitle.textContent = `Add ${this.blockSchemas[type].name}`;
+                modalTitle.textContent = `${this.translateBlockName(type)} Toevoegen`;
                 this.showBlockEditor(type, this.getDefaultBlockData(type));
             });
         });
 
         modal.classList.remove('hidden');
+    }
+
+    translateBlockName(type) {
+        const translations = {
+            'hero': 'Hero Sectie',
+            'text': 'Tekst',
+            'image': 'Afbeelding',
+            'gallery': 'Galerij',
+            'features': 'Kenmerken',
+            'two_column': 'Twee Kolommen',
+            'cta': 'Call-to-Action'
+        };
+        return translations[type] || type;
+    }
+
+    translateBlockDescription(type) {
+        const translations = {
+            'hero': 'Grote hero sectie met titel en ondertitel',
+            'text': 'Rijke tekst inhoud blok',
+            'image': 'Enkele afbeelding met optioneel bijschrift',
+            'gallery': 'Grid van afbeeldingen',
+            'features': 'Lijst van kenmerken met titels en beschrijvingen',
+            'two_column': 'Inhoud in twee kolommen',
+            'cta': 'Call-to-action sectie met knop'
+        };
+        return translations[type] || '';
     }
 
     getBlockIcon(type) {
@@ -191,7 +217,7 @@ class InlinePageEditor {
 
     editBlock(index) {
         if (Object.keys(this.blockSchemas).length === 0) {
-            alert('Editor not ready yet. Block schemas are still loading. Please wait a moment and try again.');
+            alert('Editor is nog niet klaar. Blokschema\'s worden nog geladen. Probeer het over een moment opnieuw.');
             return;
         }
 
@@ -201,7 +227,7 @@ class InlinePageEditor {
         const modal = document.getElementById('block-edit-modal');
         const modalTitle = document.getElementById('modal-title');
         
-        modalTitle.textContent = `Edit ${this.blockSchemas[block.type]?.name || block.type}`;
+        modalTitle.textContent = `${this.translateBlockName(block.type)} Bewerken`;
         
         this.showBlockEditor(block.type, block.data);
         modal.classList.remove('hidden');
@@ -229,7 +255,7 @@ class InlinePageEditor {
                 html += `<input type="hidden" name="${field}" value="">`;
                 html += `<p class="mt-2 text-xs text-neutral-500">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    Use the toolbar to format text, add links, lists, and more
+                    Gebruik de werkbalk om tekst op te maken, links toe te voegen, lijsten en meer
                 </p>`;
                 
                 // Store value to initialize Quill later
@@ -245,17 +271,17 @@ class InlinePageEditor {
             } else if (field.includes('image') || field.includes('url')) {
                 // Image/URL field with preview
                 html += `<div class="space-y-2">`;
-                html += `<input type="text" name="${field}" value="${this.escapeHtml(String(value))}" placeholder="Enter URL or upload image" class="w-full border-2 border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">`;
+                html += `<input type="text" name="${field}" value="${this.escapeHtml(String(value))}" placeholder="Voer URL in of upload afbeelding" class="w-full border-2 border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">`;
                 if (field.includes('image') && value) {
-                    html += `<div class="mt-2"><img src="${value}" alt="Preview" class="max-w-xs rounded border" /></div>`;
+                    html += `<div class="mt-2"><img src="${value}" alt="Voorbeeld" class="max-w-xs rounded border" /></div>`;
                 }
                 html += `<button type="button" class="upload-image-btn mt-2 px-4 py-2 bg-neutral-100 hover:bg-neutral-200 rounded-lg text-sm font-medium transition">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                    Upload Image
+                    Afbeelding Uploaden
                 </button>`;
                 html += `</div>`;
             } else {
-                html += `<input type="text" name="${field}" value="${this.escapeHtml(String(value))}" class="w-full border-2 border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter ${this.formatLabel(field).toLowerCase()}">`;
+                html += `<input type="text" name="${field}" value="${this.escapeHtml(String(value))}" class="w-full border-2 border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Voer ${this.translateFieldName(field).toLowerCase()} in">`;
             }
 
             html += `</div>`;
@@ -271,7 +297,7 @@ class InlinePageEditor {
 
         const quill = new Quill(`#quill-${field}`, {
             theme: 'snow',
-            placeholder: 'Start writing your content...',
+            placeholder: 'Begin met typen...',
             modules: {
                 toolbar: [
                     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -302,7 +328,7 @@ class InlinePageEditor {
                 html += `<div class="array-item bg-neutral-50 border border-neutral-200 rounded-lg p-4" data-item-index="${idx}">`;
                 html += `<div class="flex justify-between items-center mb-3">`;
                 html += `<span class="text-sm font-semibold text-neutral-700">Item ${idx + 1}</span>`;
-                html += `<button type="button" class="remove-array-item text-red-600 hover:text-red-800 font-medium text-sm px-3 py-1 hover:bg-red-50 rounded transition">Remove</button>`;
+                html += `<button type="button" class="remove-array-item text-red-600 hover:text-red-800 font-medium text-sm px-3 py-1 hover:bg-red-50 rounded transition">Verwijderen</button>`;
                 html += `</div>`;
                 html += `<div class="space-y-2">`;
                 
@@ -310,8 +336,8 @@ class InlinePageEditor {
                     for (const [subField, subConfig] of Object.entries(config.item_schema)) {
                         const subValue = item[subField] || '';
                         html += `<div>`;
-                        html += `<label class="block text-xs font-medium text-neutral-600 mb-1">${this.formatLabel(subField)}</label>`;
-                        html += `<input type="text" name="${fieldName}[${idx}][${subField}]" value="${this.escapeHtml(subValue)}" class="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter ${this.formatLabel(subField).toLowerCase()}">`;
+                        html += `<label class="block text-xs font-medium text-neutral-600 mb-1">${this.translateFieldName(subField)}</label>`;
+                        html += `<input type="text" name="${fieldName}[${idx}][${subField}]" value="${this.escapeHtml(subValue)}" class="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Voer ${this.translateFieldName(subField).toLowerCase()} in">`;
                         html += `</div>`;
                     }
                 }
@@ -319,12 +345,12 @@ class InlinePageEditor {
                 html += `</div></div>`;
             });
         } else {
-            html += `<p class="text-sm text-neutral-500 text-center py-4">No items yet. Click "Add Item" to get started.</p>`;
+            html += `<p class="text-sm text-neutral-500 text-center py-4">Nog geen items. Klik op "Item Toevoegen" om te beginnen.</p>`;
         }
         
         html += `<button type="button" class="add-array-item w-full mt-3 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center justify-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Add Item
+            Item Toevoegen
         </button>`;
         html += `</div>`;
         
@@ -332,7 +358,7 @@ class InlinePageEditor {
         setTimeout(() => {
             document.querySelectorAll('.remove-array-item').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    if (confirm('Remove this item?')) {
+                    if (confirm('Dit item verwijderen?')) {
                         e.target.closest('.array-item').remove();
                     }
                 });
@@ -350,7 +376,7 @@ class InlinePageEditor {
                     // Re-bind remove event
                     const newItem = arrayField.querySelector(`[data-item-index="${newIndex}"]`);
                     newItem.querySelector('.remove-array-item').addEventListener('click', (e) => {
-                        if (confirm('Remove this item?')) {
+                        if (confirm('Dit item verwijderen?')) {
                             e.target.closest('.array-item').remove();
                         }
                     });
@@ -365,15 +391,15 @@ class InlinePageEditor {
         let html = `<div class="array-item bg-neutral-50 border border-neutral-200 rounded-lg p-4" data-item-index="${index}">`;
         html += `<div class="flex justify-between items-center mb-3">`;
         html += `<span class="text-sm font-semibold text-neutral-700">Item ${index + 1}</span>`;
-        html += `<button type="button" class="remove-array-item text-red-600 hover:text-red-800 font-medium text-sm px-3 py-1 hover:bg-red-50 rounded transition">Remove</button>`;
+        html += `<button type="button" class="remove-array-item text-red-600 hover:text-red-800 font-medium text-sm px-3 py-1 hover:bg-red-50 rounded transition">Verwijderen</button>`;
         html += `</div>`;
         html += `<div class="space-y-2">`;
         
         if (config.item_schema) {
             for (const [subField, subConfig] of Object.entries(config.item_schema)) {
                 html += `<div>`;
-                html += `<label class="block text-xs font-medium text-neutral-600 mb-1">${this.formatLabel(subField)}</label>`;
-                html += `<input type="text" name="${fieldName}[${index}][${subField}]" value="" class="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter ${this.formatLabel(subField).toLowerCase()}">`;
+                html += `<label class="block text-xs font-medium text-neutral-600 mb-1">${this.translateFieldName(subField)}</label>`;
+                html += `<input type="text" name="${fieldName}[${index}][${subField}]" value="" class="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Voer ${this.translateFieldName(subField).toLowerCase()} in">`;
                 html += `</div>`;
             }
         }
@@ -387,7 +413,7 @@ class InlinePageEditor {
         const blockTypeDiv = modalContent.querySelector('[data-block-type]');
         
         if (!blockTypeDiv) {
-            alert('Invalid block configuration');
+            alert('Ongeldige blok configuratie');
             return;
         }
 
@@ -396,10 +422,10 @@ class InlinePageEditor {
 
         if (this.currentEditingIndex === -1) {
             this.blocks.push({ type: blockType, data: blockData });
-            this.updateStatus('Block added - click Save Changes to publish');
+            this.updateStatus('Blok toegevoegd - klik op Wijzigingen Opslaan om te publiceren');
         } else {
             this.blocks[this.currentEditingIndex].data = blockData;
-            this.updateStatus('Block updated - click Save Changes to publish');
+            this.updateStatus('Blok bijgewerkt - klik op Wijzigingen Opslaan om te publiceren');
         }
 
         this.hasChanges = true;
@@ -439,10 +465,10 @@ class InlinePageEditor {
     }
 
     deleteBlock(index) {
-        if (confirm('Are you sure you want to delete this block? This cannot be undone.')) {
+        if (confirm('Weet u zeker dat u dit blok wilt verwijderen? Dit kan niet ongedaan worden gemaakt.')) {
             this.blocks.splice(index, 1);
             this.hasChanges = true;
-            this.updateStatus('Block deleted - click Save Changes');
+            this.updateStatus('Blok verwijderd - klik op Wijzigingen Opslaan');
             location.reload();
         }
     }
@@ -453,14 +479,14 @@ class InlinePageEditor {
 
         [this.blocks[index], this.blocks[newIndex]] = [this.blocks[newIndex], this.blocks[index]];
         this.hasChanges = true;
-        this.updateStatus('Block moved - click Save Changes');
+        this.updateStatus('Blok verplaatst - klik op Wijzigingen Opslaan');
         location.reload();
     }
 
     async savePage() {
         const saveBtn = document.getElementById('save-page-btn');
         saveBtn.disabled = true;
-        this.updateStatus('Saving...');
+        this.updateStatus('Opslaan...');
         
         try {
             const response = await fetch(this.apiUrl, {
@@ -476,21 +502,21 @@ class InlinePageEditor {
 
             if (response.ok) {
                 this.hasChanges = false;
-                this.updateStatus('✓ Saved successfully!');
+                this.updateStatus('✓ Succesvol opgeslagen!');
                 setTimeout(() => location.reload(), 1000);
             } else {
-                this.updateStatus('❌ Save failed - please try again');
+                this.updateStatus('❌ Opslaan mislukt - probeer het opnieuw');
                 saveBtn.disabled = false;
             }
         } catch (error) {
             console.error('Save error:', error);
-            this.updateStatus('❌ Error - please try again');
+            this.updateStatus('❌ Fout - probeer het opnieuw');
             saveBtn.disabled = false;
         }
     }
 
     cancelEditing() {
-        if (this.hasChanges && !confirm('Discard all unsaved changes?')) {
+        if (this.hasChanges && !confirm('Alle niet-opgeslagen wijzigingen negeren?')) {
             return;
         }
         location.reload();
@@ -527,7 +553,33 @@ class InlinePageEditor {
     }
 
     formatLabel(str) {
-        return str.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        return this.translateFieldName(str);
+    }
+
+    translateFieldName(field) {
+        const translations = {
+            'title': 'Titel',
+            'subtitle': 'Ondertitel',
+            'content': 'Inhoud',
+            'description': 'Beschrijving',
+            'items': 'Items',
+            'image_url': 'Afbeelding URL',
+            'background_image': 'Achtergrond Afbeelding',
+            'alt_text': 'Alt Tekst',
+            'caption': 'Bijschrift',
+            'images': 'Afbeeldingen',
+            'columns': 'Kolommen',
+            'left_content': 'Linker Inhoud',
+            'right_content': 'Rechter Inhoud',
+            'layout': 'Indeling',
+            'button_text': 'Knop Tekst',
+            'button_url': 'Knop URL',
+            'background_color': 'Achtergrondkleur',
+            'icon': 'Icoon',
+            'url': 'URL',
+            'alt': 'Alt',
+        };
+        return translations[field] || str.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
 
     escapeHtml(text) {

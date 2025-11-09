@@ -93,7 +93,7 @@
 
                 <!-- Footer Links -->
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">Follow Us</h3>
+                    <h3 class="text-lg font-semibold mb-4">Volg Ons</h3>
                     <div class="flex space-x-4">
                         @foreach(\App\Models\Setting::getFooterLinks() as $link)
                             <a href="{{ $link['url'] }}"

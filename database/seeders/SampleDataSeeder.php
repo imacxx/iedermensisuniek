@@ -49,20 +49,20 @@ class SampleDataSeeder extends Seeder
         Setting::create([
             'key' => 'global_settings',
             'value' => [
-                'site_title' => 'My Awesome Site',
+                'site_title' => 'Mijn Geweldige Website',
                 'logo_image' => null,
                 'favicon' => null,
                 'primary_navigation' => [
                     ['label' => 'Home', 'url' => '/'],
-                    ['label' => 'About', 'url' => '/about'],
-                    ['label' => 'Services', 'url' => '/services'],
+                    ['label' => 'Over Ons', 'url' => '/about'],
+                    ['label' => 'Diensten', 'url' => '/services'],
                     ['label' => 'Contact', 'url' => '/contact'],
                 ],
                 'secondary_navigation' => [
-                    ['label' => 'Privacy Policy', 'url' => '/privacy'],
-                    ['label' => 'Terms of Service', 'url' => '/terms'],
+                    ['label' => 'Privacybeleid', 'url' => '/privacy'],
+                    ['label' => 'Algemene Voorwaarden', 'url' => '/terms'],
                 ],
-                'footer_text' => '© 2024 My Awesome Site. All rights reserved.',
+                'footer_text' => '© 2024 Mijn Geweldige Website. Alle rechten voorbehouden.',
                 'footer_links' => [
                     ['label' => 'Facebook', 'url' => 'https://facebook.com'],
                     ['label' => 'Twitter', 'url' => 'https://twitter.com'],
@@ -74,54 +74,54 @@ class SampleDataSeeder extends Seeder
         // Keep existing settings for backwards compatibility
         Setting::create([
             'key' => 'site_name',
-            'value' => ['name' => 'My Awesome Site']
+            'value' => ['name' => 'Mijn Geweldige Website']
         ]);
 
         Setting::create([
             'key' => 'site_description',
-            'value' => ['description' => 'A modern CMS built with Laravel and FilamentPHP']
+            'value' => ['description' => 'Een modern CMS gebouwd met Laravel en FilamentPHP']
         ]);
 
         Setting::create([
             'key' => 'seo_defaults',
             'value' => [
-                'title' => 'My Awesome Site',
-                'description' => 'A modern CMS built with Laravel and FilamentPHP',
+                'title' => 'Mijn Geweldige Website',
+                'description' => 'Een modern CMS gebouwd met Laravel en FilamentPHP',
                 'keywords' => 'laravel, filament, cms, website'
             ]
         ]);
 
         // Create sample Home page with blocks
         Page::create([
-            'title' => 'Welcome to Our Site',
+            'title' => 'Welkom bij Onze Website',
             'slug' => 'home',
             'blocks' => [
                 [
                     'type' => 'hero',
                     'data' => [
-                        'title' => 'Welcome to Our Website',
-                        'subtitle' => 'Built with Laravel 12 and FilamentPHP',
+                        'title' => 'Welkom bij Onze Website',
+                        'subtitle' => 'Gebouwd met Laravel 12 en FilamentPHP',
                         'background_image' => null,
                     ],
                 ],
                 [
                     'type' => 'text',
                     'data' => [
-                        'content' => '<p>This is a sample page with block-based content. You can edit this content using our API or admin panel.</p>',
+                        'content' => '<p>Dit is een voorbeeldpagina met blok-gebaseerde inhoud. U kunt deze inhoud bewerken met onze API of het beheerpaneel.</p>',
                     ],
                 ],
                 [
                     'type' => 'features',
                     'data' => [
-                        'title' => 'Features',
+                        'title' => 'Kenmerken',
                         'items' => [
                             [
                                 'title' => 'Laravel 12',
-                                'description' => 'Latest Laravel framework with modern features.',
+                                'description' => 'Nieuwste Laravel framework met moderne functies.',
                             ],
                             [
                                 'title' => 'FilamentPHP',
-                                'description' => 'Beautiful admin panel for content management.',
+                                'description' => 'Mooi beheerpaneel voor contentbeheer.',
                             ],
                             [
                                 'title' => 'Tailwind CSS',
@@ -133,24 +133,24 @@ class SampleDataSeeder extends Seeder
                 [
                     'type' => 'two_column',
                     'data' => [
-                        'left_content' => '<h3>Why Choose Us?</h3><p>We provide modern, scalable solutions built with the latest technologies. Our team of experts ensures your project is delivered on time and exceeds expectations.</p><ul><li>Expert Development Team</li><li>Modern Technology Stack</li><li>Reliable Support</li></ul>',
-                        'right_content' => '<h3>Our Services</h3><p>From web development to mobile apps, we offer comprehensive digital solutions tailored to your business needs.</p><div class="bg-primary text-white p-4 rounded-lg mt-4"><strong>Ready to start your project?</strong><br>Contact us today for a free consultation.</div>',
+                        'left_content' => '<h3>Waarom Voor Ons Kiezen?</h3><p>Wij bieden moderne, schaalbare oplossingen gebouwd met de nieuwste technologieën. Ons team van experts zorgt ervoor dat uw project op tijd wordt opgeleverd en de verwachtingen overtreft.</p><ul><li>Expert Ontwikkelingsteam</li><li>Moderne Technologie Stack</li><li>Betrouwbare Ondersteuning</li></ul>',
+                        'right_content' => '<h3>Onze Diensten</h3><p>Van webontwikkeling tot mobiele apps, wij bieden uitgebreide digitale oplossingen op maat van uw bedrijfsbehoeften.</p><div class="bg-primary text-white p-4 rounded-lg mt-4"><strong>Klaar om uw project te starten?</strong><br>Neem vandaag nog contact met ons op voor een gratis consultatie.</div>',
                         'layout' => '50-50',
                     ],
                 ],
                 [
                     'type' => 'cta',
                     'data' => [
-                        'title' => 'Ready to Get Started?',
-                        'subtitle' => 'Join thousands of satisfied customers and transform your business today.',
-                        'button_text' => 'Start Your Project',
+                        'title' => 'Klaar Om Te Beginnen?',
+                        'subtitle' => 'Sluit je aan bij duizenden tevreden klanten en transformeer je bedrijf vandaag nog.',
+                        'button_text' => 'Start Uw Project',
                         'button_url' => '/contact',
                         'background_color' => 'primary',
                     ],
                 ],
             ],
-            'meta_title' => 'Home - Our Website',
-            'meta_description' => 'Welcome to our website built with Laravel 12 and FilamentPHP.',
+            'meta_title' => 'Home - Onze Website',
+            'meta_description' => 'Welkom bij onze website gebouwd met Laravel 12 en FilamentPHP.',
             'meta_keywords' => 'laravel, filament, cms, website',
             'is_published' => true,
         ]);
