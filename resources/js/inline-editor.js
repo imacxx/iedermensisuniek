@@ -16,7 +16,12 @@ class InlinePageEditor {
         await this.prepareCsrf();
         await this.loadBlockSchemas();
         this.bindEvents();
-        console.log('Inline editor initialized');
+        console.log('Inline editor initialized with', Object.keys(this.blockSchemas).length, 'block types');
+        
+        if (Object.keys(this.blockSchemas).length === 0) {
+            console.error('No block schemas loaded! Editor may not work correctly.');
+            this.updateStatus('Error: Block schemas not loaded');
+        }
     }
 
     async prepareCsrf() {
@@ -42,6 +47,9 @@ class InlinePageEditor {
 
             if (response.ok) {
                 this.blockSchemas = await response.json();
+                console.log('Block schemas loaded:', this.blockSchemas);
+            } else {
+                console.error('Failed to load block schemas. Status:', response.status);
             }
         } catch (error) {
             console.error('Failed to load block schemas:', error);
@@ -125,6 +133,12 @@ class InlinePageEditor {
     }
 
     editBlock(index) {
+        if (Object.keys(this.blockSchemas).length === 0) {
+            alert('Editor not ready yet. Block schemas are still loading. Please wait a moment and try again.');
+            console.error('Attempted to edit block before schemas loaded');
+            return;
+        }
+
         const block = this.blocks[index];
         this.currentEditingIndex = index;
         
@@ -133,35 +147,43 @@ class InlinePageEditor {
         
         modalTitle.textContent = `Edit ${this.blockSchemas[block.type]?.name || block.type} Block`;
         
+        console.log('Editing block:', index, 'Type:', block.type, 'Data:', block.data);
+        
         this.showBlockEditor(block.type, block.data);
         modal.classList.remove('hidden');
     }
 
     showBlockEditor(blockType, blockData) {
         const schema = this.blockSchemas[blockType];
-        if (!schema) return;
+        if (!schema) {
+            console.error('Schema not found for block type:', blockType);
+            console.log('Available schemas:', Object.keys(this.blockSchemas));
+            return;
+        }
 
         const modalContent = document.getElementById('modal-content');
         let html = `<div class="space-y-4" data-block-type="${blockType}">`;
 
         for (const [field, config] of Object.entries(schema.schema)) {
-            const value = blockData[field] || config.default || '';
+            const value = blockData[field] !== undefined ? blockData[field] : (config.default || '');
             
             html += `<div class="form-group">`;
-            html += `<label class="block text-sm font-medium text-neutral-700 mb-1">${this.formatLabel(field)}</label>`;
+            html += `<label class="block text-sm font-medium text-neutral-700 mb-2">${this.formatLabel(field)}</label>`;
 
             if (config.type === 'html' || field.includes('content')) {
-                html += `<textarea name="${field}" rows="8" class="w-full border border-neutral-300 rounded-md px-3 py-2 font-mono text-sm">${this.escapeHtml(value)}</textarea>`;
+                // Use a larger textarea for HTML/content fields
+                html += `<textarea name="${field}" rows="12" class="w-full border border-neutral-300 rounded-md px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">${this.escapeHtml(String(value))}</textarea>`;
+                html += `<p class="mt-1 text-xs text-neutral-500">You can use HTML tags like &lt;p&gt;, &lt;h1&gt;-&lt;h6&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, etc.</p>`;
             } else if (config.type === 'array') {
                 html += this.renderArrayField(field, value, config);
             } else if (config.options) {
-                html += `<select name="${field}" class="w-full border border-neutral-300 rounded-md px-3 py-2">`;
+                html += `<select name="${field}" class="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">`;
                 config.options.forEach(opt => {
                     html += `<option value="${opt}" ${value === opt ? 'selected' : ''}>${opt}</option>`;
                 });
                 html += `</select>`;
             } else {
-                html += `<input type="text" name="${field}" value="${this.escapeHtml(value)}" class="w-full border border-neutral-300 rounded-md px-3 py-2">`;
+                html += `<input type="text" name="${field}" value="${this.escapeHtml(String(value))}" class="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">`;
             }
 
             html += `</div>`;
@@ -169,6 +191,8 @@ class InlinePageEditor {
 
         html += `</div>`;
         modalContent.innerHTML = html;
+        
+        console.log('Block editor rendered for:', blockType, 'with data:', blockData);
     }
 
     renderArrayField(fieldName, items, config) {
@@ -385,8 +409,11 @@ class InlinePageEditor {
     }
 
     escapeHtml(text) {
+        if (text === null || text === undefined) {
+            return '';
+        }
         const div = document.createElement('div');
-        div.textContent = text;
+        div.textContent = String(text);
         return div.innerHTML;
     }
 }

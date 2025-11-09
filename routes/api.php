@@ -11,8 +11,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 
-// API routes for pages
-Route::middleware('auth:sanctum')->group(function (): void {
+// API routes for pages (accessible to both web and sanctum authenticated users)
+Route::middleware(['auth:sanctum,web'])->group(function (): void {
     Route::get('/pages/{slug}', [PageController::class, 'show']);
     Route::put('/pages/{slug}', [PageController::class, 'update']);
 });
@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
 // API route for uploads
 Route::post('/uploads', [UploadController::class, 'store'])->middleware('auth:sanctum');
 
-// Block schema endpoint
+// Block schema endpoint (public - just metadata)
 Route::get('/blocks/schema', function () {
     return response()->json(\App\Services\BlockSchema::getAvailableBlocks());
-})->middleware('auth:sanctum');
+});
