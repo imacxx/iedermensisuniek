@@ -17,6 +17,7 @@ class BlockSchema
                     'title' => ['type' => 'string', 'required' => true, 'default' => 'Welcome'],
                     'subtitle' => ['type' => 'string', 'required' => false, 'default' => ''],
                     'background_image' => ['type' => 'string', 'required' => false, 'default' => null],
+                    'eyebrow' => ['type' => 'string', 'required' => false, 'default' => ''],
                 ],
                 'template' => 'blocks.hero'
             ],
@@ -25,6 +26,10 @@ class BlockSchema
                 'description' => 'Rich text content block',
                 'schema' => [
                     'content' => ['type' => 'html', 'required' => true, 'default' => '<p>Your content here</p>'],
+                    'eyebrow' => ['type' => 'string', 'required' => false, 'default' => ''],
+                    'background_style' => ['type' => 'string', 'required' => false, 'default' => 'bg-white'],
+                    'max_width' => ['type' => 'string', 'required' => false, 'default' => 'max-w-3xl'],
+                    'padding_class' => ['type' => 'string', 'required' => false, 'default' => 'px-4 py-12 sm:px-6 lg:px-8'],
                 ],
                 'template' => 'blocks.text'
             ],
@@ -33,6 +38,7 @@ class BlockSchema
                 'description' => 'List of features with titles and descriptions',
                 'schema' => [
                     'title' => ['type' => 'string', 'required' => false, 'default' => 'Features'],
+                    'eyebrow' => ['type' => 'string', 'required' => false, 'default' => ''],
                     'items' => [
                         'type' => 'array',
                         'required' => false,
@@ -78,8 +84,16 @@ class BlockSchema
                 'description' => 'Content in two columns',
                 'schema' => [
                     'left_content' => ['type' => 'html', 'required' => true, 'default' => '<p>Left column content</p>'],
-                    'right_content' => ['type' => 'html', 'required' => true, 'default' => '<p>Right column content</p>'],
+                    'right_content' => ['type' => 'html', 'required' => false, 'default' => '<p>Right column content</p>'],
+                    'eyebrow' => ['type' => 'string', 'required' => false, 'default' => ''],
                     'layout' => ['type' => 'string', 'required' => false, 'default' => '50-50', 'options' => ['50-50', '33-67', '67-33']],
+                    'right_variant' => ['type' => 'string', 'required' => false, 'default' => 'plain', 'options' => ['plain', 'card', 'profile']],
+                    'right_title' => ['type' => 'string', 'required' => false, 'default' => ''],
+                    'right_subtitle' => ['type' => 'string', 'required' => false, 'default' => ''],
+                    'right_button_text' => ['type' => 'string', 'required' => false, 'default' => ''],
+                    'right_button_link' => ['type' => 'string', 'required' => false, 'default' => ''],
+                    'right_image' => ['type' => 'string', 'required' => false, 'default' => ''],
+                    'right_image_alt' => ['type' => 'string', 'required' => false, 'default' => ''],
                 ],
                 'template' => 'blocks.two_column'
             ],

@@ -1,5 +1,5 @@
 @php
-    $backgroundClass = $data['background_class'] ?? 'bg-white';
+    $backgroundClass = $data['background_style'] ?? $data['background_class'] ?? 'bg-white';
     $maxWidth = $data['max_width'] ?? 'max-w-3xl';
     if ($maxWidth === 'full') {
         $maxWidth = 'max-w-none';

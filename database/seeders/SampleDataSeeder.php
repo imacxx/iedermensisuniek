@@ -115,24 +115,20 @@ class SampleDataSeeder extends Seeder
 <p>Je maakt altijd telefonisch een afspraak voor een consult. Laat gerust een bericht achter met naam en telefoonnummer wanneer ik even niet kan opnemen; ik bel je zo snel mogelijk terug.</p>
 HTML,
                     'right_content' => <<<'HTML'
-<div class="bg-neutral-100 rounded-2xl p-6 shadow-sm space-y-4 text-center mx-auto">
-    <h3 class="text-xl font-semibold text-neutral-900">Direct contact</h3>
-    <p class="text-neutral-600">
-        <strong>Telefoon:</strong> <a href="tel:0636176672" class="text-secondary hover:text-neutral-900">06-36176672</a><br>
-        <strong>E-mail:</strong> <a href="mailto:info@iedermensisuniek.nl" class="text-secondary hover:text-neutral-900">info@iedermensisuniek.nl</a>
-    </p>
-    <p class="text-neutral-600">Tijdens weekenden en vakanties wordt de praktijk waargenomen door een geregistreerd NVKH-collega klassiek homeopaat. Je wordt hierover ge&iuml;nformeerd via het antwoordapparaat, tijdens een consult of via de website.</p>
-    <a href="/contact" class="inline-flex items-center justify-center rounded-full bg-secondary px-4 py-2 text-white font-medium hover:bg-secondary/90 transition-colors">
-        Plan een consult
-    </a>
-</div>
+<p><strong>Telefoon:</strong> <a href="tel:0636176672">06-36176672</a><br>
+<strong>E-mail:</strong> <a href="mailto:info@iedermensisuniek.nl">info@iedermensisuniek.nl</a></p>
+<p>Tijdens weekenden en vakanties wordt de praktijk waargenomen door een geregistreerd NVKH-collega klassiek homeopaat. Je wordt hierover ge&iuml;nformeerd via het antwoordapparaat, tijdens een consult of via de website.</p>
 HTML,
+                    'right_variant' => 'card',
+                    'right_title' => 'Direct contact',
+                    'right_button_text' => 'Plan een consult',
+                    'right_button_link' => '/contact',
                 ],
             ],
             [
                 'type' => 'text',
                 'data' => [
-                    'background_class' => 'bg-gradient-to-r from-neutral-100 via-white to-primary/15',
+                    'background_style' => 'bg-gradient-to-r from-neutral-100 via-white to-primary/15',
                     'max_width' => 'max-w-4xl',
                     'padding_class' => 'px-4 py-16 sm:px-6 lg:px-10',
                     'eyebrow' => 'Vergoeding',
@@ -160,16 +156,13 @@ HTML,
 <p>Zoek je een klassiek homeopaat of EMDR-therapie in de regio Woudenberg, Maarn, Doorn, Scherpenzeel, Amersfoort Vathorst of Hoevelaken-Nijkerk? Je bent van harte welkom.</p>
 HTML,
                     'right_content' => <<<'HTML'
-<div class="flex flex-col items-center gap-6 text-center">
-    <div class="relative h-48 w-48 rounded-full border-[12px] border-primary/50 shadow-lg overflow-hidden">
-        <img src="/images/yvonne.png" alt="Yvonne Arnaud de Calavon" class="h-full w-full object-cover">
-    </div>
-    <div class="space-y-1">
-        <h3 class="text-xl font-semibold text-neutral-900">Yvonne Arnaud de Calavon</h3>
-        <p class="text-neutral-600">Klassiek homeopaat &amp; EMDR-practitioner</p>
-    </div>
-</div>
+<p>Yvonne begeleidt zowel volwassenen als kinderen met aandacht voor lichaam en geest.</p>
 HTML,
+                    'right_variant' => 'profile',
+                    'right_title' => 'Yvonne Arnaud de Calavon',
+                    'right_subtitle' => 'Klassiek homeopaat &amp; EMDR-practitioner',
+                    'right_image' => '/images/yvonne.png',
+                    'right_image_alt' => 'Yvonne Arnaud de Calavon',
                 ],
             ],
             [
