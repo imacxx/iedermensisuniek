@@ -26,7 +26,7 @@
 </head>
 <body class="antialiased bg-neutral-100 text-neutral-900">
     <!-- Header -->
-    <header class="bg-primary shadow-sm border-b border-secondary/30">
+    <header class="bg-gradient-to-r from-primary via-primary/90 to-secondary/70 shadow-md border-b border-secondary/40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4 md:py-5">
                 <!-- Logo -->
@@ -48,10 +48,10 @@
                 </div>
 
                 <!-- Navigation -->
-                <nav class="hidden md:flex space-x-8">
+                <nav class="hidden md:flex space-x-6">
                     @foreach(\App\Models\Setting::getPrimaryNavigation() as $item)
                         <a href="{{ $item['url'] }}"
-                           class="text-secondary hover:text-neutral-900 transition-colors font-semibold tracking-wide uppercase text-sm">
+                           class="text-white/90 hover:text-white transition-colors font-semibold tracking-wide uppercase text-sm drop-shadow-sm">
                             {{ $item['label'] }}
                         </a>
                     @endforeach
@@ -59,7 +59,7 @@
 
                 <!-- Mobile menu button -->
                 <div class="md:hidden">
-                    <button id="mobile-menu-button" class="text-secondary hover:text-neutral-900 transition-colors">
+                    <button id="mobile-menu-button" class="text-white/90 hover:text-white transition-colors">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
@@ -68,11 +68,11 @@
             </div>
 
             <!-- Mobile Navigation -->
-            <div id="mobile-menu" class="hidden md:hidden pb-4">
-                <div class="flex flex-col space-y-2 pt-4 border-t border-secondary/40">
+            <div id="mobile-menu" class="hidden md:hidden pb-4 bg-gradient-to-b from-primary via-primary/95 to-secondary/80 rounded-2xl mt-4 shadow-lg">
+                <div class="flex flex-col space-y-2 pt-4 pb-4 border-t border-white/20">
                     @foreach(\App\Models\Setting::getPrimaryNavigation() as $item)
                         <a href="{{ $item['url'] }}"
-                           class="text-secondary hover:text-neutral-900 transition-colors font-semibold uppercase tracking-wide py-2">
+                           class="px-4 text-white/90 hover:text-white transition-colors font-semibold uppercase tracking-wide py-2">
                             {{ $item['label'] }}
                         </a>
                     @endforeach
