@@ -602,7 +602,9 @@ class InlinePageEditor {
 
         this.hasChanges = true;
         this.closeModal();
-        location.reload(); // Reload to show changes
+        
+        // Show notification instead of reloading
+        this.showNotification('Blok opgeslagen in editor. Klik op "Wijzigingen Opslaan" om te publiceren.', 'info');
     }
 
     extractBlockData(container) {
@@ -641,7 +643,7 @@ class InlinePageEditor {
             this.blocks.splice(index, 1);
             this.hasChanges = true;
             this.updateStatus('Blok verwijderd - klik op Wijzigingen Opslaan');
-            location.reload();
+            this.showNotification('Blok verwijderd. Klik op "Wijzigingen Opslaan" om te publiceren.', 'warning');
         }
     }
 
@@ -652,7 +654,7 @@ class InlinePageEditor {
         [this.blocks[index], this.blocks[newIndex]] = [this.blocks[newIndex], this.blocks[index]];
         this.hasChanges = true;
         this.updateStatus('Blok verplaatst - klik op Wijzigingen Opslaan');
-        location.reload();
+        this.showNotification('Blok verplaatst. Klik op "Wijzigingen Opslaan" om te publiceren.', 'info');
     }
 
     async savePage() {
@@ -737,6 +739,32 @@ class InlinePageEditor {
         if (status) {
             status.textContent = message;
         }
+    }
+
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        const bgColor = type === 'warning' ? 'bg-orange-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500';
+        
+        notification.className = `fixed top-20 right-6 ${bgColor} text-white px-6 py-4 rounded-lg shadow-2xl z-50 max-w-md animate-slide-in`;
+        notification.innerHTML = `
+            <div class="flex items-start space-x-3">
+                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-sm font-medium">${message}</p>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100%)';
+            notification.style.transition = 'all 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 4000);
     }
 
     getDefaultBlockData(type) {
