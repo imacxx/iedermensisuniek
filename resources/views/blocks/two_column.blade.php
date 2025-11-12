@@ -86,7 +86,7 @@
                         @break
 
                     @default
-                        <div class="w-full max-w-xl text-center space-y-6">
+                        <div class="prose prose-lg max-w-2xl mx-auto text-center prose-headings:text-neutral-900 prose-headings:text-center prose-p:text-neutral-700 prose-p:text-center prose-ul:list-none prose-ul:pl-0 prose-li:text-center">
                             {!! $data['right_content'] !!}
                         </div>
                         @break
