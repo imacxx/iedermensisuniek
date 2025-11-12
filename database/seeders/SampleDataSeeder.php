@@ -64,6 +64,7 @@ class SampleDataSeeder extends Seeder
                     ['label' => 'Home', 'url' => '/'],
                     ['label' => 'Tarieven', 'url' => '/tarieven'],
                     ['label' => 'Klassieke homeopathie', 'url' => '/klassieke-homeopathie'],
+                    ['label' => 'Zwangerschap & bevalling', 'url' => '/zwangerschap-en-bevalling'],
                     ['label' => 'Cursus eerste hulp', 'url' => '/cursus-eerste-hulp'],
                     ['label' => 'EMDR', 'url' => '/emdr'],
                     ['label' => 'Contact', 'url' => '/contact'],
@@ -472,9 +473,111 @@ HTML,
             ]
         );
 
+        // Build 'Zwangerschap & bevalling' page content
+        $zwangerschapBlocks = [
+            [
+                'type' => 'text',
+                'data' => [
+                    'background_style' => 'bg-white',
+                    'max_width' => 'max-w-4xl',
+                    'padding_class' => 'px-4 py-16 sm:px-6 lg:px-10',
+                    'eyebrow' => 'Zwangerschap & bevalling',
+                    'content' => <<<'HTML'
+<h2>Zwangerschap & bevalling</h2>
+<p>In principe kun je met elke klacht naar een klassiek homeopaat. Dit hoofdstuk gaat over klachten die op kunnen treden zowel voor, tijdens als na de zwangerschap.</p>
+<p>Voor de zwangerschap kunnen er zich al problemen voordoen. Jij en je partner willen bijvoorbeeld graag een kindje maar het lukt niet om zwanger te worden, of je krijgt steeds weer een miskraam. Homeopathie kan dan een oplossing zijn. Maar ook kunnen er problemen ontstaan als je zwanger bent, of tijdens de bevalling of in het kraambed bij zowel moeder als kind, ook dan kan Homeopathie een uitkomst bieden. Enkele voorbeelden lees je hieronder.</p>
+HTML,
+                ],
+            ],
+            [
+                'type' => 'text',
+                'data' => [
+                    'background_style' => 'bg-gradient-to-r from-neutral-100 via-white to-primary/15',
+                    'max_width' => 'max-w-4xl',
+                    'padding_class' => 'px-4 py-12 sm:px-6 lg:px-10',
+                    'eyebrow' => 'Natuurlijke geneeswijze',
+                    'content' => <<<'HTML'
+<h2>Klassieke homeopathie tijdens zwangerschap</h2>
+<p>Klassieke homeopathie is een natuurlijke geneeswijze, en mits goed voorgeschreven onschadelijk voor zowel moeder als kind.</p>
+<p>Ik heb naast mijn 6 jarige opleiding tot klassiek homeopaat de opleiding "klassieke homeopathie voor verloskunde" gevolgd, zodat ik de middelen op een verantwoorde wijze kan voorschrijven.</p>
+<p>Klassieke homeopathie is een niet onderdrukkende totaal geneeswijze waarbij de gehele mens centraal staat.</p>
+<p>Hoewel veel klachten van patiënten op elkaar kunnen lijken, is ieder mens uniek, dus ook in zijn manier van 'ziek' zijn. De klachten die iemand heeft, zijn voor een homeopaat uitingen van een verstoord evenwicht.</p>
+<p>Het is voor het herstel van belang het juiste middel in te nemen. Met een goed gekozen homeopatisch middel wordt de oorzaak van uw klacht aangepakt en wordt het evenwicht weer hersteld. Daarbij wordt het zelfgenezend vermogen gestimuleerd en versterkt.</p>
+<p>Als gevolg hiervan is de reactie op de behandeling merkbaar op de voornaamste klacht, op je energieniveau en op je hele welbevinden.</p>
+HTML,
+                ],
+            ],
+            [
+                'type' => 'features',
+                'data' => [
+                    'title' => 'Voorbeelden',
+                    'eyebrow' => 'Enkele voorbeelden',
+                    'items' => [
+                        [
+                            'title' => 'Zwangerschap',
+                            'description' => 'Misselijkheid, obstipatie, spataderen en/of aambeien, jeuk, blaasontsteking, vaginale infecties, bekkenklachten, carpaal tunnelsyndroom, liggingsafwijking baby, emoties (angst t.a.v. baring, kindje e.d. stemmingswisseling-en, depressief), (herhaalde) miskramen.',
+                        ],
+                        [
+                            'title' => 'Bevalling',
+                            'description' => 'Dreigende vroeggeboorte, overtijd, niet vorderende ontsluiting, langdurig gebroken vliezen, niet vorderende uitdrijving, achterblijvende placenta, pijnstilling, angst (t.a.v. baring, kindje e.d.).',
+                        ],
+                        [
+                            'title' => 'Kraambed',
+                            'description' => 'Wondbehandeling, naweeën, plasproblemen, nabloedingen, baarmoederontsteking, postnatale depressie, aambeien/obstipatie, verwerken verlies van de baby.',
+                        ],
+                        [
+                            'title' => 'Baby',
+                            'description' => 'Geboortetrauma (bv. hoofdpijn), navelontsteking, oogontsteking, darmkrampjes, spruw, obstipatie, geelzucht, "huilbaby\'s", scheef/plat hoofdje.',
+                        ],
+                        [
+                            'title' => 'Borstvoeding',
+                            'description' => 'Stuwing, borstontsteking, tepelkloven, teveel/te weinig melk, candida (spruw) aan tepels, toeschietproblemen, weigering borst, stoppen voeding.',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'type' => 'text',
+                'data' => [
+                    'background_style' => 'bg-white',
+                    'max_width' => 'max-w-4xl',
+                    'padding_class' => 'px-4 py-16 sm:px-6 lg:px-10',
+                    'eyebrow' => 'Praktische informatie',
+                    'content' => <<<'HTML'
+<h2>Meer informatie</h2>
+<p>Je kunt bij mij ook terecht voor speciale homeopathische zalf tegen <span class="underline">aambeien en spataderen</span>. De zalf bevat o.a. calendula, hamamelis, echinacaea en kan zonder gevaar gebruikt worden tijdens zwangerschap maar ook tijdens het geven van borstvoeding, eventueel in combinatie met een homeopatisch middel. Neem gerust contact op.</p>
+<p>Indien nodig is het ook mogelijk een consult bij je thuis af te nemen.</p>
+<p>Voor vragen of (vrijblijvende) informatie mag je altijd bellen.</p>
+<p>Aangezien ik aangesloten ben bij de NVKH worden consulten, afhankelijk van je polis, geheel of gedeeltelijk vergoed.</p>
+HTML,
+                ],
+            ],
+            [
+                'type' => 'cta',
+                'data' => [
+                    'title' => 'Vragen over zwangerschap en homeopathie?',
+                    'subtitle' => 'Neem gerust contact op voor meer informatie of een vrijblijvend gesprek.',
+                    'button_text' => 'Neem contact op',
+                    'button_url' => '/contact',
+                    'background_color' => 'primary',
+                ],
+            ],
+        ];
+
+        Page::updateOrCreate(
+            ['slug' => 'zwangerschap-en-bevalling'],
+            [
+                'title' => 'Zwangerschap & bevalling',
+                'blocks' => $zwangerschapBlocks,
+                'meta_title' => 'Zwangerschap & bevalling | Ieder mens is uniek',
+                'meta_description' => 'Homeopathie tijdens zwangerschap, bevalling en kraambed. Natuurlijke behandeling voor moeder en baby.',
+                'meta_keywords' => 'zwangerschap, bevalling, kraambed, baby, borstvoeding, homeopathie',
+                'is_published' => true,
+            ]
+        );
+
         // Create placeholder pages for remaining navigation items (excl. Tarieven, al gezaaid)
         $placeholderPages = [
-            ['title' => 'Klassieke homeopathie', 'slug' => 'klassieke-homeopathie'],
             ['title' => 'Cursus eerste hulp', 'slug' => 'cursus-eerste-hulp'],
             ['title' => 'EMDR', 'slug' => 'emdr'],
             ['title' => 'Contact', 'slug' => 'contact'],
