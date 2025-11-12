@@ -17,33 +17,41 @@ class SampleDataSeeder extends Seeder
     public function run(): void
     {
         // Create sample categories
-        $webDevelopment = Category::create([
-            'name' => 'Web Development',
-            'slug' => 'web-development',
-            'description' => 'Articles about web development technologies and best practices.',
-        ]);
+        $webDevelopment = Category::firstOrCreate(
+            ['slug' => 'web-development'],
+            [
+                'name' => 'Web Development',
+                'description' => 'Articles about web development technologies and best practices.',
+            ]
+        );
 
-        $laravel = Category::create([
-            'name' => 'Laravel',
-            'slug' => 'laravel',
-            'description' => 'Laravel framework tutorials and tips.',
-        ]);
+        $laravel = Category::firstOrCreate(
+            ['slug' => 'laravel'],
+            [
+                'name' => 'Laravel',
+                'description' => 'Laravel framework tutorials and tips.',
+            ]
+        );
 
         // Create sample blog post
-        $blog = Blog::create([
-            'title' => 'Getting Started with Laravel 12',
-            'slug' => 'getting-started-with-laravel-12',
-            'excerpt' => 'Learn about the new features and improvements in Laravel 12.',
-            'body' => '<p>Laravel 12 brings exciting new features to the framework...</p>',
-            'published_at' => now(),
-            'is_published' => true,
-            'seo_title' => 'Getting Started with Laravel 12',
-            'seo_description' => 'Learn about the new features and improvements in Laravel 12.',
-            'meta_keywords' => 'laravel, framework, php, tutorial',
-        ]);
+        $blog = Blog::firstOrCreate(
+            ['slug' => 'getting-started-with-laravel-12'],
+            [
+                'title' => 'Getting Started with Laravel 12',
+                'excerpt' => 'Learn about the new features and improvements in Laravel 12.',
+                'body' => '<p>Laravel 12 brings exciting new features to the framework...</p>',
+                'published_at' => now(),
+                'is_published' => true,
+                'seo_title' => 'Getting Started with Laravel 12',
+                'seo_description' => 'Learn about the new features and improvements in Laravel 12.',
+                'meta_keywords' => 'laravel, framework, php, tutorial',
+            ]
+        );
 
-        // Attach categories to the blog
-        $blog->categories()->attach([$laravel->id, $webDevelopment->id]);
+        // Attach categories to the blog if not already attached
+        if (!$blog->categories()->where('categories.id', $laravel->id)->exists()) {
+            $blog->categories()->attach([$laravel->id, $webDevelopment->id]);
+        }
 
         // Create global settings
         Setting::updateOrCreate(
@@ -327,6 +335,139 @@ HTML,
                 'meta_title' => 'Tarieven klassieke homeopathie en EMDR | Ieder mens is uniek',
                 'meta_description' => 'Overzicht van tarieven voor klassieke homeopathie en EMDR, vergoeding via aanvullende verzekering, toeslagen en belangrijke informatie.',
                 'meta_keywords' => 'tarieven, homeopathie, EMDR, vergoeding, NVKH, R-Hom',
+                'is_published' => true,
+            ]
+        );
+
+        // Build 'Klassieke homeopathie' page content
+        $klassiekeBlocks = [
+            [
+                'type' => 'two_column',
+                'data' => [
+                    'layout' => '50-50',
+                    'eyebrow' => 'Klassieke homeopathie',
+                    'left_content' => <<<'HTML'
+<p>Klassieke homeopathie is een niet onderdrukkende totaal geneeswijze met een menselijke benadering. Hoewel veel klachten van patiënten op elkaar kunnen lijken, is ieder mens uniek, dus ook in zijn manier van ziek zijn. Daarom staat bij de homeopatische behandeling de hele mens centraal.</p>
+<p>De klachten die iemand heeft, zijn voor een homeopaat uitingen van een verstoord evenwicht. Met een goed gekozen homeopatisch middel wordt de oorzaak van uw klacht aangepakt en wordt uw evenwicht weer hersteld. Daarbij wordt uw zelfgenezend vermogen gestimuleerd en versterkt.</p>
+<p>Als gevolg hiervan is de reactie op de behandeling merkbaar op de voornaamste klacht, op uw energieniveau en op uw hele welbevinden.</p>
+HTML,
+                    'right_variant' => 'table',
+                    'table_title' => 'Reguliere geneeskunde vs. homeopathie',
+                    'table_left_header' => 'Reguliere geneeskunde',
+                    'table_right_header' => 'Homeopathie',
+                    'table_rows' => [
+                        ['label' => 'Uitgangspunt', 'left' => 'De klacht', 'right' => 'De mens als geheel'],
+                        ['label' => 'Middel', 'left' => 'Tegengesteld aan de ziekte', 'right' => 'Gelijk aan de ziekte'],
+                        ['label' => 'Doel', 'left' => 'Symptomen bestrijden', 'right' => 'Natuurlijk evenwicht herstellen'],
+                    ],
+                ],
+            ],
+            [
+                'type' => 'two_column',
+                'data' => [
+                    'layout' => '50-50',
+                    'block_title' => 'Wanneer Klassieke Homeopathie',
+                    'background_color' => 'neutral',
+                    'left_content' => <<<'HTML'
+<p>Je kunt van kind tot volwassen, van jong tot oud met elke klacht naar een klassiek homeopaat. Zelfs als het zwanger worden niet wil lukken kan homeopathie soms uitkomst bieden.</p>
+<p>(Chronische) lichamelijke of emotionele klachten zijn goed te behandelen met behulp van klassieke homeopathie. Enkele voorbeelden:</p>
+<ul>
+<li>hoofdpijn/ migraine</li>
+<li>menstruatie problemen/ PMS/ overgangsklachten</li>
+<li>diverse darmklachten</li>
+<li>huidklachten zoals bv eczeem</li>
+<li>allergieën en hooikoorts</li>
+<li>angsten</li>
+<li>depressie/ niet lekker in je vel zitten</li>
+<li>rouwverwerking</li>
+<li>gedragsproblemen (o.a. ADHD)</li>
+<li>fibromyalgie</li>
+<li>gewrichtsklachten/ reuma</li>
+<li>verlegenheid</li>
+<li>trauma's</li>
+<li>slaapproblemen</li>
+<li>burn-out</li>
+<li>(chronische) verkoudheden/ oorontsteking</li>
+<li>begeleiding voor en na een operatie</li>
+<li>overgewicht of ondergewicht (opleiding oerslank gewichtsconsulent)</li>
+<li>vaccinatie schade/ ontstoren nadelige bijwerkingen van vaccinaties</li>
+</ul>
+<p>Maar ook bij acute klachten zoals:</p>
+<ul>
+<li>verkoudheid en griep (hoest)</li>
+<li>oorontsteking</li>
+<li>blaasontsteking</li>
+<li>wondjes (al dan niet slecht genezend)</li>
+<li>verstuikte enkel</li>
+<li>botbreuken</li>
+<li>insektenbeten- en steken</li>
+<li>brandwonden</li>
+</ul>
+HTML,
+                    'right_content' => <<<'HTML'
+<h2>Homeopathie en allergie</h2>
+<p>Het is weer voorjaarstijd, de tijd van bloei en groei en lekker buiten zijn.</p>
+<p>Niet voor iedereen is dit een leuke tijd. Sommige mensen ontwikkelen namelijk klachten zoals niezen, een loopneus, hoofdpijn, kriebel in ogen en/of keel, (toenemende) astmatische klachten, uitslag en zelfs somberheid van de bloemengeuren.</p>
+<p><strong>Kortom: Je kunt je echt ziek voelen door allergische aandoeningen</strong></p>
+<p>Ook kan het voorkomen dat je zelfs geen fruit meer kunt eten omdat je daar klachten van krijgt. Je kunt bijvoorbeeld door het eten van een appel erge kriebel in je keel en ogen krijgen en moeten niezen. Dit is te verklaren omdat de appel familie is van de berkenboom, waar veel mensen allergisch voor zijn.</p>
+<p>Door een homeopatische (constitutie) behandeling kunnen je klachten sterk afnemen en zelfs helemaal verdwijnen.</p>
+<p>Ook is het mogelijk om bij mij een hooikoorts kuur te bestellen. Vaak werkt dit voldoende voor de gehele zomer. Mocht dit toch niet voldoende werken dan is constitutioneel behandelen mogelijk.</p>
+<p>De homeopathische middelen die bij de apotheek verkrijgbaar zijn werken soms, soms niet of (te) kort. Je moet dus pilletjes blijven innemen. Dit komt omdat er meerdere middelen bij elkaar in 1 potje zitten in de hoop dat er eentje werkzaam zal zijn. Bij een klassiek homeopatische constitutiebehandeling bij ieder mens is uniek, krijg je 1 middel die bij jouw specifieke klachten passen en werkt dus veel doeltreffender.</p>
+<p>Voor vragen of voor het maken van een afspraak kun je contact met mij opnemen.</p>
+<p>Deze klachten kunnen door een klassiek homeopatische behandeling snel verbeteren en sneller genezen.</p>
+<p>Soms ontstaan er bepaalde klachten na een vaccinatie. Niet iedereen ondervindt hier hinder van, maar soms ontstaan er vele klachten waardoor je lichamelijk en geestelijk uit balans bent. Het is mogelijk de vaccinatie(s) te ontstoren, zodat het organisme weer vrij is van deze belastingen en weer goed kan functioneren.</p>
+<p>Maar ook bij pijn, angst en problemen voor en tijdens zwangerschap of bevalling en in de periode erna, kan homeopathie voor zowel moeder als kind veel bieden. Zie Zwangerschap en bevalling.</p>
+HTML,
+                    'right_variant' => 'plain',
+                ],
+            ],
+            [
+                'type' => 'two_column',
+                'data' => [
+                    'layout' => '50-50',
+                    'eyebrow' => 'Consulten & Vergoeding',
+                    'background_color' => 'white',
+                    'left_content' => <<<'HTML'
+<h2>Een consult</h2>
+<p>Het eerste consult duurt ongeveer anderhalf uur en bestaat uit een uitgebreid vraaggesprek. In dit gesprek komen al uw ervaringen op het fysieke, emotionele en mentale vlak aan bod. Het lijkt alsof een homeopaat erg nieuwsgierig is, maar dit is echt nodig om het juiste homeopatische middel te kunnen vinden.</p>
+<p>Het kan zijn dat 6 patiënten met hoofdpijn alle 6 een ander homeopatisch middel nodig hebben. De ene patiënt wil misschien een koud washandje op zijn hoofd, terwijl de andere druk fijn vindt, de volgende wil absolute rust, terwijl weer een ander frisse lucht wil. Dit zijn aanwijzingen om het juiste homeopatische middel te kunnen geven.</p>
+<p>Op basis van het totaalbeeld selecteer ik een homeopatisch geneesmiddel dat het beste past bij de klacht, maar ook bij uw persoonlijkheid, dit wordt ook wel een constitutiemiddel genoemd.</p>
+<p>Na ongeveer 4 weken vindt de evaluatie plaats, dit consult zal ongeveer drie kwartier tot een uur in beslag nemen.</p>
+HTML,
+                    'right_content' => <<<'HTML'
+<h2>Vergoeding zorgverzekering</h2>
+<p>Aangezien ik aangesloten ben bij de NVKH, de Nederlandse Vereniging van Klassiek Homeopaten, worden de consulten geheel of gedeeltelijk door uw zorgverzekeraar vergoed.</p>
+<p>Dit hangt af van uw polis, kijk hiervoor in uw polis of informeer bij uw zorgverzekeraar, of neem even contact met mij op.</p>
+<p>Homeopathie valt onder de alternatieve geneeswijzen in het aanvullend pakket en staat los van bv. fysiotherapie/manuele therapie. Het eigen risico heeft betrekking op de basisverzekering en niet op het aanvullend pakket.</p>
+HTML,
+                    'right_variant' => 'plain',
+                ],
+            ],
+            [
+                'type' => 'text',
+                'data' => [
+                    'background_style' => 'bg-white',
+                    'max_width' => 'max-w-4xl',
+                    'padding_class' => 'px-4 py-16 sm:px-6 lg:px-10',
+                    'eyebrow' => 'Kwaliteit',
+                    'content' => <<<'HTML'
+<h2>Beroepsorganisatie en RBCZ</h2>
+<p>Leden van de NVKH zijn aangesloten bij de RBCZ. RBCZ is hét onafhankelijke platform voor erkende zorg met een holistische benadering. "Wij zijn de verbinder met de beste HBO of HBO+ opgeleide therapeuten in de complementaire gezondheidszorg". "Veelal worden deze therapeuten vergoed vanuit je aanvullende zorgverzekering. Jaarlijks voldoet een RBCZ-gekwalificeerde therapeut aan strenge kwaliteitseisen op het gebied van wet- en regelgeving, bij- en nascholing, zelfreflectie, VOG en de praktijk waar de zorg wordt verleend."</p>
+<p>Door aansluiting bij RBCZ valt de praktijk automatisch onder het tuchtrecht van TCZ. De werkzaamheden van alle zorgverleners in Nederland vallen onder de Wet kwaliteit klachten en geschillen zorg (Wkkgz).</p>
+<p>Mocht er een klacht zijn dan kunt u dit eerst in de praktijk bespreekbaar maken. Onvrede en klachten ontstaan vaak door gebrekkige communicatie. Rechtstreeks vragen om opheldering helpt veel problemen de wereld uit. Bent u hierover niet tevreden dan kunt u contact opnemen met NVKH of kijk op <a href="https://www.nvkh.nl/klachtenformulier-nvkh/" class="text-secondary underline">www.nvkh.nl/klachtenformulier-nvkh/</a></p>
+HTML,
+                ],
+            ],
+        ];
+
+        Page::updateOrCreate(
+            ['slug' => 'klassieke-homeopathie'],
+            [
+                'title' => 'Klassieke homeopathie',
+                'blocks' => $klassiekeBlocks,
+                'meta_title' => 'Klassieke homeopathie | Ieder mens is uniek',
+                'meta_description' => 'Wat is klassieke homeopathie? Uitleg en vergelijking met reguliere geneeskunde. De mens als geheel staat centraal.',
+                'meta_keywords' => 'klassieke homeopathie, holistische behandeling, zelfgenezend vermogen',
                 'is_published' => true,
             ]
         );

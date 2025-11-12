@@ -87,13 +87,27 @@ class BlockSchema
                     'right_content' => ['type' => 'html', 'required' => false, 'default' => '<p>Right column content</p>'],
                     'eyebrow' => ['type' => 'string', 'required' => false, 'default' => ''],
                     'layout' => ['type' => 'string', 'required' => false, 'default' => '50-50', 'options' => ['50-50', '33-67', '67-33']],
-                    'right_variant' => ['type' => 'string', 'required' => false, 'default' => 'plain', 'options' => ['plain', 'card', 'profile']],
+                    'right_variant' => ['type' => 'string', 'required' => false, 'default' => 'plain', 'options' => ['plain', 'card', 'profile', 'table']],
                     'right_title' => ['type' => 'string', 'required' => false, 'default' => ''],
                     'right_subtitle' => ['type' => 'string', 'required' => false, 'default' => ''],
                     'right_button_text' => ['type' => 'string', 'required' => false, 'default' => ''],
                     'right_button_link' => ['type' => 'string', 'required' => false, 'default' => ''],
                     'right_image' => ['type' => 'string', 'required' => false, 'default' => ''],
                     'right_image_alt' => ['type' => 'string', 'required' => false, 'default' => ''],
+                    // Table-specific fields (for right_variant = 'table')
+                    'table_title' => ['type' => 'string', 'required' => false, 'default' => ''],
+                    'table_left_header' => ['type' => 'string', 'required' => false, 'default' => ''],
+                    'table_right_header' => ['type' => 'string', 'required' => false, 'default' => ''],
+                    'table_rows' => [
+                        'type' => 'array',
+                        'required' => false,
+                        'default' => [],
+                        'item_schema' => [
+                            'label' => ['type' => 'string', 'required' => true, 'default' => ''],
+                            'left' => ['type' => 'string', 'required' => true, 'default' => ''],
+                            'right' => ['type' => 'string', 'required' => true, 'default' => ''],
+                        ],
+                    ],
                 ],
                 'template' => 'blocks.two_column'
             ],
